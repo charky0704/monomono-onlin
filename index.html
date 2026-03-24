@@ -2,82 +2,102 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ドット絵風キャラクリRPG</title>
+    <title>キャラクリRPG</title>
     <style>
-        /* ドット絵風のフォントとガタガタした枠線 */
-        body { background-color: #1a1a1a; color: #fff; font-family: 'Courier New', Courier, monospace; text-align: center; }
-        .screen { border: 4px solid #fff; width: 350px; margin: 20px auto; padding: 20px; image-rendering: pixelated; }
+        body { background-color: #1a1a1a; color: #fff; font-family: 'Courier New', monospace; text-align: center; }
+        .screen { border: 4px solid #fff; width: 380px; margin: 20px auto; padding: 20px; background: #222; }
         
-        /* バトルフィールド */
-        .battle-field { display: flex; justify-content: space-around; align-items: flex-end; height: 120px; border-bottom: 2px solid #555; margin-bottom: 20px; }
-        .character { font-size: 60px; transition: 0.1s; }
+        /* キャラ作成フォーム */
+        .maker { background: #444; padding: 15px; margin-bottom: 20px; border-radius: 8px; text-align: left; font-size: 14px; }
+        .maker div { margin-bottom: 10px; }
+        input { width: 100px; background: #000; color: #fff; border: 1px solid #fff; }
         
-        /* キャラクリ用ボタン */
-        .config { background: #333; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        button { background: #fff; color: #000; border: 2px solid #999; padding: 5px 10px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #ccc; }
-        
-        .hp-label { font-size: 12px; margin-bottom: 5px; }
-        .log { height: 50px; font-size: 14px; border-top: 1px solid #555; padding-top: 10px; }
+        /* プレイヤーパーツ */
+        .char-preview { font-size: 60px; height: 80px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .part { position: absolute; transition: 0.2s; }
+
+        /* バトルエリア */
+        .battle-field { display: flex; justify-content: space-around; align-items: flex-end; height: 120px; border-bottom: 2px solid #555; margin: 20px 0; }
+        .hp-bar { font-size: 12px; color: #ff7675; }
+
+        button { background: #fff; color: #000; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; margin: 2px; }
+        button:hover { background: #aaa; }
     </style>
 </head>
 <body>
 
     <div class="screen">
-        <div class="config">
-            <div>【キャラクリ】</div>
-            <button onclick="changeJob('⚔️')">戦士</button>
-            <button onclick="changeJob('🧙')">魔法使い</button>
-            <button onclick="changeJob('🥷')">忍者</button>
+        <h2>CHARACTER CREATE</h2>
+        
+        <div class="maker">
+            <div>名前: <input type="text" id="name-input" value="ユウシャ" oninput="updateName()"></div>
+            <div>職業: 
+                <button onclick="setBody('⚔️')">戦士</button>
+                <button onclick="setBody('🧙')">魔導士</button>
+                <button onclick="setBody('🥷')">忍者</button>
+            </div>
+            <div>オーラ: 
+                <button onclick="setAura('')">なし</button>
+                <button onclick="setAura('🔥')">火</button>
+                <button onclick="setAura('✨')">光</button>
+            </div>
         </div>
 
         <div class="battle-field">
             <div>
-                <div class="hp-label">Player</div>
-                <div id="player" class="character">⚔️</div>
+                <div class="hp-bar" id="p-name">ユウシャ</div>
+                <div id="player-view" class="char-preview">
+                    <span id="aura-part" class="part" style="font-size: 80px; opacity: 0.5;"></span>
+                    <span id="body-part" class="part">⚔️</span>
+                </div>
             </div>
             <div>
-                <div class="hp-label">HP: <span id="enemy-hp">50</span></div>
-                <div id="enemy" class="character">💧</div>
+                <div class="hp-bar">スライム HP:<span id="e-hp">50</span></div>
+                <div id="enemy" class="char-preview" style="font-size: 50px;">💧</div>
             </div>
         </div>
 
-        <button style="width: 100%; height: 50px; font-size: 20px;" onclick="attack()">たたかう！</button>
-        <div id="log" class="log">冒険の準備はいいか？</div>
+        <button style="width: 100%; height: 40px;" onclick="attack()">たたかう！</button>
+        <div id="log" style="font-size: 14px; margin-top: 10px;">旅の準備を整えよう。</div>
     </div>
 
     <script>
         let enemyHP = 50;
-        let playerIcon = '⚔️';
+        let playerName = "ユウシャ";
 
-        // 職種（見た目）を変える関数
-        function changeJob(icon) {
-            playerIcon = icon;
-            document.getElementById('player').innerText = icon;
-            document.getElementById('log').innerText = "ジョブをチェンジした！";
+        function updateName() {
+            playerName = document.getElementById('name-input').value;
+            document.getElementById('p-name').innerText = playerName;
         }
 
-        // 攻撃の関数
+        function setBody(icon) {
+            document.getElementById('body-part').innerText = icon;
+            document.getElementById('log').innerText = "職業を変えた！";
+        }
+
+        function setAura(icon) {
+            document.getElementById('aura-part').innerText = icon;
+            document.getElementById('log').innerText = "オーラを纏った！";
+        }
+
         function attack() {
             if (enemyHP <= 0) return;
-
-            const damage = Math.floor(Math.random() * 10) + 5;
-            enemyHP -= damage;
+            const dmg = Math.floor(Math.random() * 10) + 5;
+            enemyHP -= dmg;
             if (enemyHP < 0) enemyHP = 0;
 
-            // 演出：プレイヤーを一瞬動かす
-            const p = document.getElementById('player');
-            p.style.transform = "translateX(20px)";
-            setTimeout(() => p.style.transform = "translateX(0)", 100);
+            // アニメーション
+            const view = document.getElementById('player-view');
+            view.style.transform = "translateX(20px)";
+            setTimeout(() => view.style.transform = "translateX(0)", 100);
 
-            // 表示更新
-            document.getElementById('enemy-hp').innerText = enemyHP;
+            document.getElementById('e-hp').innerText = enemyHP;
             
             if (enemyHP <= 0) {
                 document.getElementById('enemy').innerText = "💀";
-                document.getElementById('log').innerText = "敵を撃破した！";
+                document.getElementById('log').innerText = playerName + "は 敵を倒した！";
             } else {
-                document.getElementById('log').innerText = damage + "のダメージ！";
+                document.getElementById('log').innerText = playerName + "の攻撃！" + dmg + "のダメージ！";
             }
         }
     </script>
