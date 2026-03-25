@@ -2,149 +2,74 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>MONOMONO ONLINE - ULTIMATE</title>
+<title>MONOMONO ONLINE - CORE</title>
 
 <style>
-:root{
---accent:#6c5ce7;
-}
-
-/* 🌤 空 */
 body{
-background:linear-gradient(to bottom,#87cefa,#e0f7ff);
+background:linear-gradient(#87cefa,#e0f7ff);
 font-family:sans-serif;
 margin:0;
 display:flex;
 justify-content:center;
 }
 
-/* レイアウト */
-.game{
-display:flex;
-width:1000px;
-gap:10px;
-margin-top:20px;
-}
+.wrap{width:1000px;display:flex;gap:10px;margin-top:10px}
 
-.panel{
-background:rgba(255,255,255,0.9);
-padding:15px;
-border-radius:10px;
-}
+.panel{background:#fff;padding:10px;border-radius:10px}
 
-/* 左 */
 .left{width:40%}
-
-/* 右 */
 .right{width:60%}
 
-/* ボタン */
-.btn{
-width:100%;
-padding:8px;
-margin:3px 0;
-cursor:pointer;
-border:1px solid #aaa;
-background:white;
-}
+.btn{width:100%;margin:3px;padding:8px}
 
-/* メニュー */
-.menu-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-}
+#log{height:150px;overflow:auto;background:#000;color:#0f0;padding:5px}
 
-.group{
-background:#eee;
-padding:10px;
-border-radius:8px;
-}
-
-#log{
-height:150px;
-overflow:auto;
-background:#000;
-color:#0f0;
-font-size:12px;
-padding:5px;
-}
-
+.enemy{font-size:60px;text-align:center}
 .hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<div id="app">
-
-<!-- タイトル -->
 <div id="start">
 <h2>MONOMONO ONLINE</h2>
-<button class="btn" onclick="newGame()">新規作成</button>
-<button class="btn" onclick="loadList()">続きから</button>
+<button onclick="newGame()">新規</button>
+<button onclick="loadList()">続き</button>
 </div>
 
-<!-- ロード -->
 <div id="load" class="hidden"></div>
 
-<!-- 作成 -->
 <div id="create" class="hidden">
-<input id="name" placeholder="名前"><br>
-<input type="file" id="img"><br>
-<button class="btn" onclick="create()">作成</button>
+<input id="name" placeholder="名前">
+<input type="file" id="img">
+<button onclick="create()">作成</button>
 </div>
 
-<!-- ゲーム -->
-<div id="game" class="hidden" class="game">
+<div id="game" class="hidden">
+<div class="wrap">
 
-<div class="game">
-
-<!-- 左：ステータス -->
 <div class="panel left">
 <h3>ステータス</h3>
 <div id="status"></div>
 </div>
 
-<!-- 右：メニュー -->
 <div class="panel right">
-<h3>行動メニュー</h3>
+<h3>行動</h3>
 
-<div class="menu-grid">
+<button onclick="showExplore()">探索</button>
+<button onclick="tower()">試練の塔</button>
+<button onclick="save()">セーブ</button>
 
-<div class="group">
-<h4>🏙 街</h4>
-<button class="btn">倉庫</button>
-<button class="btn">市場</button>
-<button class="btn">合成</button>
-</div>
+<div id="explore"></div>
 
-<div class="group">
-<h4>⚔️ 戦闘</h4>
-<button class="btn" onclick="battle()">探索</button>
-<button class="btn">ランダム</button>
-</div>
-
-<div class="group">
-<h4>🧪 成長</h4>
-<button class="btn" onclick="jobSelect()">転職</button>
-<button class="btn">ステ振り</button>
-</div>
-
-<div class="group">
-<h4>💾 システム</h4>
-<button class="btn" onclick="save()">セーブ</button>
-<button class="btn" onclick="logout()">戻る</button>
-</div>
-
-</div>
-
+<div id="battle" class="hidden">
+<div class="enemy" id="enemy"></div>
 <div id="log"></div>
-
 </div>
 
 </div>
 
+</div>
 </div>
 
 <script>
@@ -160,15 +85,14 @@ let p=null,imgData="",curHp=0;
 /* 新規 */
 function newGame(){show("create")}
 
-/* ロード一覧 */
+/* ロード */
 function loadList(){
 let html="";
 for(let i=0;i<localStorage.length;i++){
 let k=localStorage.key(i);
 if(k.startsWith("mono_")){
 let d=JSON.parse(localStorage.getItem(k));
-html+=`
-<button class="btn" onclick="load('${k}')">${d.name} Lv${d.lv}</button>
+html+=`<button onclick="load('${k}')">${d.name}</button>
 <button onclick="del('${k}')">削除</button>`;
 }
 }
@@ -176,44 +100,41 @@ set("load",html);
 show("load");
 }
 
-/* 削除 */
-function del(k){
-localStorage.removeItem(k);
-loadList();
-}
-
-/* ロード */
 function load(k){
 p=JSON.parse(localStorage.getItem(k));
-curHp=p.hp*5;
 imgData=p.img;
+curHp=p.hp*5;
 show("game");
 update();
 }
 
-/* 画像 */
+function del(k){localStorage.removeItem(k);loadList();}
+
+/* 作成 */
 document.getElementById("img").onchange=e=>{
 let r=new FileReader();
 r.onload=v=>imgData=v.target.result;
 r.readAsDataURL(e.target.files[0]);
 };
 
-/* 作成 */
 function create(){
-p={name:val("name"),lv:1,exp:0,gold:0,img:imgData};
+p={
+name:val("name"),
+lv:1,exp:0,gold:0,img:imgData,
+floors:{1:{unlock:true,prog:0}},
+tower:1
+};
 jobSelect();
 }
 
-/* 職業選択 */
 function jobSelect(){
 let html="";
 Object.keys(JOBS).forEach(j=>{
-html+=`<button class="btn" onclick="setJob('${j}')">${j}</button>`;
+html+=`<button onclick="setJob('${j}')">${j}</button>`;
 });
 set("create",html);
 }
 
-/* 決定 */
 function setJob(j){
 Object.assign(p,JOBS[j]);
 p.job=j;
@@ -222,25 +143,58 @@ show("game");
 update();
 }
 
-/* UI更新 */
+/* UI */
 function update(){
 set("status",`
 <img src="${imgData}" width="60"><br>
-<b>${p.name}</b><br>
-Lv ${p.lv} (${p.job})<br><br>
-
+${p.name}<br>
+Lv${p.lv} ${p.job}<br>
 HP ${curHp}/${p.hp*5}<br>
-EXP ${p.exp}/${p.lv*100}<br>
-GOLD ${p.gold}<br>
+EXP ${p.exp}<br>
+塔 ${p.tower}階
 `);
 }
 
-/* 戦闘 */
-function battle(){
-let log=document.getElementById("log");
-log.innerHTML="敵出現！<br>";
+/* 探索 */
+function showExplore(){
+let html="";
+for(let f in p.floors){
+if(p.floors[f].unlock){
+html+=`<button onclick="explore(${f})">第${f}層 (${p.floors[f].prog}%)</button>`;
+}
+}
+set("explore",html);
+}
 
-let hp=30;
+function explore(f){
+p.floors[f].prog+=25;
+
+if(p.floors[f].prog>=100){
+startBattle({name:"ボス"+f,hp:50+f*20,atk:10+f*5,icon:"👹"},"boss",f);
+}else{
+startBattle({name:"敵",hp:30,atk:5,icon:"👺"},"normal",f);
+}
+}
+
+/* 塔 */
+function tower(){
+startBattle({
+name:"塔守護者"+p.tower,
+hp:60+p.tower*30,
+atk:15+p.tower*5,
+icon:"🗼"
+},"tower");
+}
+
+/* 戦闘 */
+function startBattle(e,type,floor){
+showBattle();
+let log=document.getElementById("log");
+document.getElementById("enemy").innerText=e.icon;
+
+log.innerHTML=e.name+" 出現<br>";
+
+let hp=e.hp;
 
 let loop=setInterval(()=>{
 let dmg=p.magic?p.matk:p.atk;
@@ -249,26 +203,38 @@ log.innerHTML+="攻撃 "+dmg+"<br>";
 
 if(hp<=0){
 clearInterval(loop);
-log.innerHTML+="🏆 倒した！<br>";
+log.innerHTML+="🏆 "+e.name+" を倒した！<br>";
 
 setTimeout(()=>{
-p.exp+=20;
-p.gold+=20;
-update();
+afterBattle(type,floor);
 },2000);
 }
 },500);
 }
 
-/* セーブ */
-function save(){
-p.img=imgData;
-localStorage.setItem("mono_"+p.name,JSON.stringify(p));
-alert("セーブしました");
+function afterBattle(type,f){
+if(type=="boss"){
+p.floors[f+1]={unlock:true,prog:0};
+p.floors[f].prog=0;
+}
+if(type=="tower"){
+p.tower++;
+}
+p.exp+=20;
+p.gold+=20;
+update();
 }
 
-/* 戻る */
-function logout(){location.reload();}
+/* 戦闘表示 */
+function showBattle(){
+document.getElementById("battle").classList.remove("hidden");
+}
+
+/* セーブ */
+function save(){
+localStorage.setItem("mono_"+p.name,JSON.stringify(p));
+alert("保存");
+}
 
 /* util */
 function show(id){
