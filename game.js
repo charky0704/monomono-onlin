@@ -15,9 +15,7 @@ function show(id){
 }
 
 /* ===== キャラ作成画面へ ===== */
-function goCreate(){
-    show("create");
-}
+function goCreate(){ show("create"); }
 
 /* ===== プレイヤー作成 ===== */
 function createPlayer(){
@@ -53,38 +51,28 @@ function updateUI(){
     if(lvEl) lvEl.textContent = p.lv;
     if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
     if(expEl) expEl.textContent = p.exp;
-
-    const statusEl = document.getElementById("status");
-    if(statusEl){
-        statusEl.innerHTML = 
-        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
-    } else {
-        console.warn("status要素が見つかりません");
-    }
 }
 
 /* ===== 探索 ===== */
 function exploreArea(){
-    show("menu");
+    if(!p) return;
+    explore++;
+    if(explore > maxExplore) explore = maxExplore;
+    alert(`${p.name}は探索した！ 探索進捗: ${explore}/${maxExplore}`);
     updateUI();
 }
 
 /* ===== セーブ ===== */
 function saveGame(){
     if(!p) return;
-    localStorage.setItem("mono",JSON.stringify(p));
+    localStorage.setItem("mono", JSON.stringify(p));
+    alert("ゲームをセーブしました！");
 }
 
 /* ===== ロード ===== */
 function loadGame(){
     p = JSON.parse(localStorage.getItem("mono"));
     if(!p){ alert("データなし"); return; }
-
-    if(typeof floor === "undefined") floor = 1;
-    if(typeof explore === "undefined") explore = 0;
-    if(typeof maxExplore === "undefined") maxExplore = 5;
-    if(typeof inBattle === "undefined") inBattle = false;
-
     show("menu");
     updateUI();
 }
@@ -92,23 +80,14 @@ function loadGame(){
 /* ===== ログアウト ===== */
 function logout(){ location.reload(); }
 
-/* ===== ボスクリア後 ===== */
-function clearBoss(){
-    floor++;
-    explore = 0;
-    alert("次の階層へ！");
-    show("menu");
-    updateUI();
-}
-
-/* ===== ダミー関数 ===== */
+/* ===== ダミー塔 ===== */
 function startTower(){ alert("塔機能は未実装です"); }
 
 /* ===== グローバル公開 ===== */
 window.goCreate = goCreate;
 window.createPlayer = createPlayer;
 window.loadGame = loadGame;
-window.explore = exploreArea;
+window.exploreArea = exploreArea;
 window.saveGame = saveGame;
 window.logout = logout;
 window.startTower = startTower;
