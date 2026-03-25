@@ -53,10 +53,9 @@ document.getElementById("status").innerHTML =
 
 /* ===== 探索 ===== */
 function explore(){
-
-if(!p) return;
-
-startBattle();
+show("menu");
+document.getElementById("status").innerHTML =
+`${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>探索:${explore}/${maxExplore}`;
 }
 
 /* ===== セーブ ===== */
