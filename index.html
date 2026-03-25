@@ -11,10 +11,9 @@ font-family:sans-serif;
 background:linear-gradient(to bottom,#bfe9ff,#e6f7ff);
 }
 
-/* 画面制御 */
 .hidden{display:none}
 
-/* ===== 共通レイアウト ===== */
+/* ===== 画面 ===== */
 .screen{
 height:100vh;
 display:flex;
@@ -47,23 +46,6 @@ background:lime;
 width:100%;
 }
 
-/* ===== START ===== */
-#start h1{
-font-size:40px;
-}
-
-/* ===== MENU ===== */
-#menu{
-align-items:flex-start;
-padding:20px;
-}
-
-/* ===== CREATE ===== */
-input{
-margin:5px;
-padding:5px;
-}
-
 /* ===== BATTLE ===== */
 #battleTop{
 display:flex;
@@ -79,8 +61,9 @@ text-align:center;
 }
 
 .vs{
-font-size:30px;
+font-size:26px;
 font-weight:bold;
+color:#333;
 }
 
 #log{
@@ -99,7 +82,7 @@ margin-top:10px;
 
 <!-- START -->
 <div id="start" class="screen">
-<h1>MONOMONO <span style="color:#00aaff">ONLINE</span></h1>
+<h1>MONOMONO ONLINE</h1>
 <button onclick="goCreate()">NEW GAME</button>
 <button onclick="load()">CONTINUE</button>
 </div>
@@ -124,7 +107,7 @@ margin-top:10px;
 </div>
 
 <!-- BATTLE -->
-<div id="battle" class="hidden screen">
+<div id="battle" class="screen hidden">
 
 <div id="battleTop">
 
@@ -137,7 +120,6 @@ margin-top:10px;
 <div class="vs">VS</div>
 
 <div class="unit">
-<div id="eicon" style="font-size:60px;"></div>
 <div id="ename"></div>
 <div class="bar"><div id="ehp" class="hp"></div></div>
 </div>
@@ -196,12 +178,10 @@ update();
 /* ===== 続きから ===== */
 function load(){
 p=JSON.parse(localStorage.getItem("mono"));
-
 if(!p){
 alert("データなし");
 return;
 }
-
 show("menu");
 update();
 }
@@ -212,7 +192,7 @@ localStorage.setItem("mono",JSON.stringify(p));
 alert("保存完了");
 }
 
-/* ===== メニュー更新 ===== */
+/* ===== UI更新 ===== */
 function update(){
 document.getElementById("status").innerHTML=
 `${p.name}<br>Lv:${p.lv}<br>EXP:${p.exp}`;
@@ -232,26 +212,24 @@ document.getElementById("pname").innerText=p.name;
 let enemy={
 name:"SLIME",
 hp:40,
-atk:5,
-icon:"💧"
+atk:5
 };
 
 let ehp=enemy.hp;
 
-document.getElementById("eicon").innerText=enemy.icon;
 document.getElementById("ename").innerText=enemy.name;
 
-log("Encounter!");
+log("Encounter");
 
 let loop=setInterval(()=>{
 
 // プレイヤー攻撃
 ehp-=10;
-log("You hit 10");
+log("You attack -10");
 
 // 敵攻撃
 p.hp-=enemy.atk;
-log("Enemy hits " + enemy.atk);
+log("Enemy attacks -" + enemy.atk);
 
 // HP更新
 document.getElementById("ehp").style.width=(ehp/enemy.hp*100)+"%";
@@ -273,7 +251,7 @@ lose();
 /* ===== 勝利 ===== */
 function win(){
 
-log("WIN!");
+log("WIN");
 
 setTimeout(()=>{
 
@@ -296,7 +274,7 @@ update();
 
 /* ===== 敗北 ===== */
 function lose(){
-log("LOSE!");
+log("LOSE");
 
 setTimeout(()=>{
 inBattle=false;
