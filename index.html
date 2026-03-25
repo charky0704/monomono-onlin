@@ -2,207 +2,230 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>カスタムドット絵RPG</title>
+    <title>モノモノ オンライン</title>
     <style>
-        body { background-color: #1a1a1a; color: #fff; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 20px; }
-        .screen { border: 4px solid #fff; width: 420px; margin: 0 auto; padding: 20px; background: #222; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        body { background: #1a1a1a; color: white; font-family: 'Courier New', monospace; text-align: center; }
+        .box { border: 4px solid #555; width: 420px; margin: 20px auto; padding: 20px; background: #222; position: relative; }
+        .hidden { display: none; }
+        .pixel-img { width: 100px; height: 100px; image-rendering: pixelated; }
         
-        /* キャラ作成エリア */
-        .maker { background: #333; padding: 15px; margin-bottom: 20px; border-radius: 8px; text-align: left; font-size: 14px; border: 1px solid #555; }
-        .maker h3 { margin-top: 0; color: #ffce00; font-size: 16px; border-bottom: 1px solid #555; }
-        input[type="text"] { width: 120px; background: #000; color: #fff; border: 1px solid #fff; padding: 3px; }
+        /* メニューボタン */
+        .menu-btn { width: 100%; padding: 10px; margin: 5px 0; background: #444; color: white; border: 1px solid #888; cursor: pointer; font-weight: bold; }
+        .menu-btn:hover { background: #666; }
         
-        /* 職業ボタン */
-        .job-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
-        .job-btn { background: #444; color: #fff; border: 1px solid #aaa; padding: 5px; cursor: pointer; font-size: 12px; }
-        .job-btn:hover:not(:disabled) { background: #666; }
-        .job-btn:disabled { opacity: 0.5; cursor: default; border-color: #ffce00; color: #ffce00; }
-
-        /* ステータス振り分け */
-        .stat-table { width: 100%; margin-top: 10px; border-collapse: collapse; }
-        .stat-table td { padding: 4px; border-bottom: 1px solid #444; }
-        .btn-plus { width: 30px; height: 30px; cursor: pointer; background: #fff; border: none; font-weight: bold; }
-
-        /* バトルエリア */
-        .battle-field { display: flex; justify-content: space-around; align-items: flex-end; height: 160px; border-bottom: 2px solid #555; margin: 20px 0; padding-bottom: 10px; }
-        .char-preview { position: relative; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        /* ステータス表示 */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; background: #333; padding: 10px; border-radius: 5px; }
         
-        /* ドット絵表示設定 */
-        .pixel-img {
-            width: 80px; height: 80px;
-            object-fit: contain;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            transition: transform 0.1s;
-        }
-        .hp-label { font-size: 12px; color: #ff7675; margin-bottom: 5px; font-weight: bold; }
-
-        button#attack-btn { width: 100%; height: 50px; background: #d63031; color: #fff; border: none; font-size: 18px; font-weight: bold; cursor: pointer; display: none; }
-        button#attack-btn:hover { background: #ff7675; }
-        #log { font-size: 14px; margin-top: 15px; min-height: 40px; color: #00cec9; }
+        /* バトル画面 */
+        .battle-display { display: flex; justify-content: space-around; align-items: center; height: 150px; border-bottom: 2px solid #444; margin-bottom: 10px; }
+        .hp-bar-bg { width: 80px; height: 8px; background: #550000; margin: 5px auto; border: 1px solid #fff; }
+        .hp-bar-fill { height: 100%; background: #ff4757; transition: 0.3s; }
+        
+        #log { border: 2px solid #444; padding: 10px; height: 80px; overflow-y: auto; font-size: 13px; text-align: left; background: #000; color: #0f0; margin-top: 10px; }
+        h1 { color: #ffce00; text-shadow: 2px 2px #000; font-size: 24px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div class="screen">
-    <h2>CHARACTER CREATE</h2>
-    
-    <div class="maker">
-        <div>名前: <input type="text" id="name-input" value="ユウシャ" oninput="updateName()"></div>
-        <div style="margin-top:10px;">画像: <input type="file" accept="image/*" onchange="loadCharacter(event)"></div>
-    </div>
+<div class="box">
+    <h1>モノモノ オンライン</h1>
 
-    <div id="job-selector" class="maker">
-        <h3>1. 職業を選択（変更不可）</h3>
-        <div class="job-grid" id="job-buttons">
-            <button class="job-btn" onclick="selectJob('剣士')">剣士</button>
-            <button class="job-btn" onclick="selectJob('戦士')">戦士</button>
-            <button class="job-btn" onclick="selectJob('魔法使い')">魔法使い</button>
-            <button class="job-btn" onclick="selectJob('盗賊')">盗賊</button>
-            <button class="job-btn" onclick="selectJob('弓使い')">弓使い</button>
-            <button class="job-btn" onclick="selectJob('魔物使い')">魔物使い</button>
-            <button class="job-btn" onclick="selectJob('大盾使い')">大盾使い</button>
-            <button class="job-btn" onclick="selectJob('僧侶')">僧侶</button>
+    <div id="setup-screen">
+        <p>名前: <input type="text" id="p-name-input" value="ユウシャ"></p>
+        <p>画像: <input type="file" accept="image/*" id="img-upload"></p>
+        <div id="job-list">
+            <p>職業を選択（変更不可）</p>
+            <button class="menu-btn" onclick="setJob('剣士')">剣士</button>
+            <button class="menu-btn" onclick="setJob('戦士')">戦士</button>
+            <button class="menu-btn" onclick="setJob('魔法使い')">魔法使い</button>
+            <button class="menu-btn" onclick="setJob('盗賊')">盗賊</button>
+            <button class="menu-btn" onclick="setJob('弓使い')">弓使い</button>
+            <button class="menu-btn" onclick="setJob('魔物使い')">魔物使い</button>
+            <button class="menu-btn" onclick="setJob('大盾使い')">大盾使い</button>
+            <button class="menu-btn" onclick="setJob('僧侶')">僧侶</button>
         </div>
     </div>
 
-    <div id="status-screen" class="maker" style="display:none;">
-        <h3>2. ポイントを振る (残り: <span id="bp-display">14</span>)</h3>
-        <table class="stat-table">
-            <tr><td>体力</td><td id="stat-hp">0</td><td><button class="btn-plus" onclick="addStat('hp')">+</button></td><td>魔防</td><td id="stat-mdef">0</td><td><button class="btn-plus" onclick="addStat('mdef')">+</button></td></tr>
-            <tr><td>魔力</td><td id="stat-mp">0</td><td><button class="btn-plus" onclick="addStat('mp')">+</button></td><td>速度</td><td id="stat-spd">0</td><td><button class="btn-plus" onclick="addStat('spd')">+</button></td></tr>
-            <tr><td>攻撃</td><td id="stat-atk">0</td><td><button class="btn-plus" onclick="addStat('atk')">+</button></td><td colspan="3"></td></tr>
-            <tr><td>防御</td><td id="stat-def">0</td><td><button class="btn-plus" onclick="addStat('def')">+</button></td><td colspan="3"></td></tr>
-            <tr><td>魔攻</td><td id="stat-matk">0</td><td><button class="btn-plus" onclick="addStat('matk')">+</button></td><td colspan="3"></td></tr>
-        </table>
-        <button id="start-btn" style="width:100%; margin-top:10px; height:30px;" onclick="startGame()" disabled>冒険開始！</button>
+    <div id="point-screen" class="hidden">
+        <h3>残りBP: <span id="bp">14</span></h3>
+        <div id="stat-config"></div>
+        <button class="menu-btn" id="start-btn" onclick="toMenu()" disabled>キャラ確定</button>
     </div>
 
-    <div class="battle-field">
-        <div class="char-preview">
-            <div class="hp-label" id="p-name">ユウシャ</div>
-            <div id="player-body">
-                <img id="player-img" src="" style="display:none;" class="pixel-img">
-                <span id="default-icon" style="font-size:50px;">👤</span>
+    <div id="main-menu" class="hidden">
+        <button class="menu-btn" style="background:#8e44ad;" onclick="startBattle()">⚔ 探索に行く</button>
+        <button class="menu-btn" onclick="showScreen('status-screen')">👤 ステータス確認</button>
+        <button class="menu-btn" onclick="alert('店主「まだ準備中だよ」')">💰 店（準備中）</button>
+    </div>
+
+    <div id="status-screen" class="hidden">
+        <h3>キャラクター情報</h3>
+        <div id="status-display" class="stat-grid"></div>
+        <button class="menu-btn" onclick="toMenu()">戻る</button>
+    </div>
+
+    <div id="battle-screen" class="hidden">
+        <div class="battle-display">
+            <div>
+                <div id="p-name-disp"></div>
+                <div class="hp-bar-bg"><div id="p-hp-bar" class="hp-bar-fill" style="width:100%"></div></div>
+                <div id="player-view">👤</div>
+            </div>
+            <div style="font-weight:bold; color:red;">VS</div>
+            <div>
+                <div>スライム</div>
+                <div class="hp-bar-bg"><div id="e-hp-bar" class="hp-bar-fill" style="width:100%"></div></div>
+                <div id="enemy-view" style="font-size:50px;">💧</div>
             </div>
         </div>
-        <div class="char-preview">
-            <div class="hp-label">スライム HP:<span id="e-hp">100</span></div>
-            <div id="enemy-view" style="font-size: 50px; transition: 0.1s;">💧</div>
-        </div>
+        <div id="battle-info">戦闘中...</div>
     </div>
 
-    <button id="attack-btn" onclick="attack()">たたかう！</button>
-    <div id="log">職業とステータスを決めてください。</div>
+    <div id="log">モノモノ オンラインへようこそ。</div>
 </div>
 
 <script>
-    // データ定義
-    const jobs = {
-        "剣士": { hp: 12, mp: 5, atk: 15, def: 8, matk: 5, mdef: 8, spd: 12, crit: 0.2 },
-        "戦士": { hp: 20, mp: 3, atk: 18, def: 12, matk: 2, mdef: 5, spd: 6, crit: 0.05 },
-        "魔法使い": { hp: 8, mp: 25, atk: 4, def: 5, matk: 20, mdef: 15, spd: 8, crit: 0.05 },
-        "盗賊": { hp: 10, mp: 8, atk: 10, def: 6, matk: 6, mdef: 6, spd: 20, crit: 0.25 },
-        "弓使い": { hp: 10, mp: 10, atk: 14, def: 7, matk: 5, mdef: 7, spd: 15, crit: 0.2 },
-        "魔物使い": { hp: 12, mp: 15, atk: 8, def: 8, matk: 8, mdef: 8, spd: 10, pet: true },
-        "大盾使い": { hp: 25, mp: 5, atk: 8, def: 20, matk: 2, mdef: 12, spd: 4, crit: 0.02 },
-        "僧侶": { hp: 15, mp: 20, atk: 6, def: 10, matk: 10, mdef: 18, spd: 8, crit: 0.05 }
+const jobData = {
+    "剣士": {hp:12, mp:5, atk:15, def:8, matk:5, mdef:8, spd:12, crit:0.2},
+    "戦士": {hp:20, mp:3, atk:18, def:12, matk:2, mdef:5, spd:6, crit:0.05},
+    "魔法使い": {hp:8, mp:25, atk:4, def:5, matk:20, mdef:15, spd:8, crit:0.05},
+    "盗賊": {hp:10, mp:8, atk:10, def:6, matk:6, mdef:6, spd:20, crit:0.25},
+    "弓使い": {hp:10, mp:10, atk:14, def:7, matk:5, mdef:7, spd:15, crit:0.2},
+    "魔物使い": {hp:12, mp:15, atk:8, def:8, matk:8, mdef:8, spd:10, pet:true},
+    "大盾使い": {hp:25, mp:5, atk:8, def:20, matk:2, mdef:12, spd:4, crit:0.02},
+    "僧侶": {hp:15, mp:20, atk:6, def:10, matk:10, mdef:18, spd:8, crit:0.05}
+};
+
+let myStats = null;
+let maxHP = 0;
+let curHP = 0;
+let points = 14;
+let playerName = "";
+let battleInterval = null;
+
+// 画像アップロード
+document.getElementById('img-upload').onchange = function(e) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        document.getElementById('player-view').innerHTML = `<img src="${event.target.result}" class="pixel-img">`;
     };
+    reader.readAsDataURL(e.target.files[0]);
+};
 
-    let playerStats = null;
-    let bonusPoints = 14;
-    let playerName = "ユウシャ";
-    let enemyHP = 100;
-    let isGameStarted = false;
+function setJob(name) {
+    myStats = {...jobData[name]};
+    myStats.job = name;
+    showScreen('point-screen');
+    renderPointConfig();
+}
 
-    // 名前更新
-    function updateName() {
-        playerName = document.getElementById('name-input').value;
-        document.getElementById('p-name').innerText = playerName;
+function renderPointConfig() {
+    const div = document.getElementById('stat-config');
+    div.innerHTML = "";
+    const names = {hp:"体力", mp:"魔力", atk:"攻撃", def:"防御", matk:"魔攻", mdef:"魔防", spd:"速度"};
+    for (let key in names) {
+        div.innerHTML += `<div style="display:flex; justify-content:space-between; margin:5px;">
+            ${names[key]}: ${myStats[key]} <button onclick="addPoint('${key}')">+</button>
+        </div>`;
     }
+}
 
-    // 画像読み込み
-    function loadCharacter(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.getElementById('player-img');
-            img.src = e.target.result;
-            img.style.display = "block";
-            document.getElementById('default-icon').style.display = "none";
-        };
-        reader.readAsDataURL(file);
+function addPoint(key) {
+    if (points > 0) {
+        myStats[key]++;
+        points--;
+        document.getElementById('bp').innerText = points;
+        renderPointConfig();
+        if (points === 0) document.getElementById('start-btn').disabled = false;
     }
+}
 
-    // 職業選択
-    function selectJob(jobName) {
-        playerStats = { ...jobs[jobName] };
-        document.querySelectorAll('.job-btn').forEach(b => {
-            b.disabled = true;
-            if(b.innerText === jobName) b.style.background = "#00cec9";
-        });
-        document.getElementById('status-screen').style.display = 'block';
-        updateStatUI();
-        document.getElementById('log').innerText = `${jobName}を選択。ポイントを振ってください。`;
-    }
+function toMenu() {
+    playerName = document.getElementById('p-name-input').value;
+    maxHP = myStats.hp * 5; // 体力1につきHP5換算
+    curHP = maxHP;
+    showScreen('main-menu');
+    addLog("拠点の村に到着した。");
+}
 
-    // ポイント追加
-    function addStat(key) {
-        if (bonusPoints > 0) {
-            playerStats[key]++;
-            bonusPoints--;
-            updateStatUI();
-            if (bonusPoints === 0) document.getElementById('start-btn').disabled = false;
+function showScreen(id) {
+    ["setup-screen", "point-screen", "main-menu", "status-screen", "battle-screen"].forEach(s => {
+        document.getElementById(s).classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+    if(id === 'status-screen') renderStatus();
+}
+
+function renderStatus() {
+    const div = document.getElementById('status-display');
+    div.innerHTML = `<div>職業: ${myStats.job}</div><div>HP: ${curHP}/${maxHP}</div>`;
+    const names = {mp:"魔力", atk:"攻撃", def:"防御", matk:"魔攻", mdef:"魔防", spd:"速度"};
+    for (let key in names) div.innerHTML += `<div>${names[key]}: ${myStats[key]}</div>`;
+}
+
+// バトルロジック
+function startBattle() {
+    showScreen('battle-screen');
+    document.getElementById('p-name-disp').innerText = playerName;
+    let enemy = { name: "スライム", hp: 50, maxHp: 50, atk: 8, spd: 5 };
+    updateHPBars(enemy);
+    addLog("スライムに遭遇！");
+
+    battleInterval = setInterval(() => {
+        // 先制判定
+        if (myStats.spd >= enemy.spd) {
+            if (playerAttack(enemy)) return endBattle(true);
+            if (enemyAttack(enemy)) return endBattle(false);
+        } else {
+            if (enemyAttack(enemy)) return endBattle(false);
+            if (playerAttack(enemy)) return endBattle(true);
         }
+    }, 1200);
+}
+
+function playerAttack(enemy) {
+    let isCrit = Math.random() < (myStats.crit || 0.05);
+    let dmg = Math.max(1, Math.floor(myStats.atk * (isCrit ? 2 : 1) - (enemy.spd / 2)));
+    enemy.hp -= dmg;
+    addLog(`${playerName}の攻撃！${enemy.name}に${dmg}ダメージ！${isCrit ? '★' : ''}`);
+    updateHPBars(enemy);
+    return enemy.hp <= 0;
+}
+
+function enemyAttack(enemy) {
+    // 回避判定
+    if (Math.random() < (myStats.spd - enemy.spd) * 0.05) {
+        addLog(`${playerName}は攻撃をひらりと身をかわした！`);
+        return false;
     }
+    let dmg = Math.max(1, Math.floor(enemy.atk - (myStats.def / 3)));
+    curHP -= dmg;
+    addLog(`${enemy.name}の攻撃！${playerName}は${dmg}ダメージ受けた！`);
+    updateHPBars(enemy);
+    return curHP <= 0;
+}
 
-    function updateStatUI() {
-        document.getElementById('bp-display').innerText = bonusPoints;
-        for (let key in playerStats) {
-            const el = document.getElementById('stat-' + key);
-            if (el) el.innerText = playerStats[key];
-        }
+function updateHPBars(enemy) {
+    document.getElementById('p-hp-bar').style.width = (curHP / maxHP * 100) + "%";
+    document.getElementById('e-hp-bar').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
+}
+
+function endBattle(win) {
+    clearInterval(battleInterval);
+    if (win) {
+        addLog("勝利！経験値を得た。");
+        document.getElementById('enemy-view').innerText = "💀";
+    } else {
+        addLog("敗北した...。村へ運ばれた。");
+        curHP = Math.floor(maxHP * 0.1); // 瀕死で復活
     }
+    setTimeout(() => toMenu(), 2000);
+}
 
-    // ゲーム開始
-    function startGame() {
-        isGameStarted = true;
-        document.getElementById('status-screen').style.display = 'none';
-        document.getElementById('job-selector').style.display = 'none';
-        document.querySelector('.maker').style.display = 'none'; // 基本設定も隠す
-        document.getElementById('attack-btn').style.display = 'block';
-        document.getElementById('log').innerText = "スライムがあらわれた！";
-    }
-
-    // 攻撃処理
-    function attack() {
-        if (enemyHP <= 0) return;
-
-        // クリティカル判定
-        const isCrit = Math.random() < (playerStats.crit || 0.05);
-        let dmg = Math.floor(playerStats.atk * (isCrit ? 2 : 1) * (0.8 + Math.random() * 0.4));
-        
-        enemyHP -= dmg;
-        if (enemyHP < 0) enemyHP = 0;
-
-        // 演出
-        const pImg = document.getElementById('player-img').style.display === "block" ? 
-                     document.getElementById('player-img') : document.getElementById('default-icon');
-        const eView = document.getElementById('enemy-view');
-
-        pImg.style.transform = "translateX(30px)";
-        setTimeout(() => pImg.style.transform = "translateX(0)", 100);
-
-        document.getElementById('e-hp').innerText = enemyHP;
-        document.getElementById('log').innerText = `${playerName}の攻撃！ ${isCrit ? '★痛恨の一撃！★ ' : ''}${dmg}のダメージ！`;
-
-        if (enemyHP <= 0) {
-            eView.innerText = "💀";
-            document.getElementById('log').innerText += "\n敵を倒した！";
-            document.getElementById('attack-btn').disabled = true;
-        }
-    }
+function addLog(msg) {
+    const log = document.getElementById('log');
+    log.innerHTML = msg + "<br>" + log.innerHTML;
+}
 </script>
 </body>
 </html>
