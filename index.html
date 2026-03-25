@@ -2,112 +2,102 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONOMONO ONLINE - COMPLETE</title>
+    <title>MONOMONO ONLINE - Ver.6.0</title>
     <style>
-        :root { --main-bg: linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d); --panel: rgba(0,0,0,0.85); --accent: #ffce00; --tower: #9b59b6; }
-        body { background: var(--main-bg); background-attachment: fixed; color: white; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        :root { --main-bg: #0f0c29; --panel: rgba(20,20,40,0.95); --accent: #ffce00; }
+        body { background: var(--main-bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .game-container { display: flex; width: 100%; max-width: 1100px; gap: 15px; height: 95vh; }
-        .side-panel, .main-panel { background: var(--panel); border: 2px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; overflow-y: auto; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .side-panel { flex: 1; min-width: 280px; display: flex; flex-direction: column; }
+        .side-panel, .main-panel { background: var(--panel); border: 2px solid #333; border-radius: 15px; padding: 15px; overflow-y: auto; }
+        .side-panel { flex: 1; min-width: 280px; }
         .main-panel { flex: 2; position: relative; }
-        .btn { width: 100%; padding: 12px; margin: 5px 0; background: #444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background: #666; transform: translateY(-2px); }
-        .hp-bar-bg { width: 100%; height: 12px; background: #300; border-radius: 6px; overflow: hidden; margin: 5px 0; border: 1px solid #555; }
+        .btn { width: 100%; padding: 12px; margin: 5px 0; background: #333; color: white; border: 1px solid #555; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn:hover:not(:disabled) { background: #555; transform: scale(1.02); }
+        .hp-bar-bg { width: 100%; height: 14px; background: #300; border-radius: 7px; overflow: hidden; border: 1px solid #777; margin: 5px 0; }
         .hp-bar-fill { height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); width: 100%; transition: 0.3s; }
-        #battle-log { height: 180px; background: rgba(0,0,0,0.7); padding: 10px; font-size: 13px; overflow-y: auto; border-radius: 10px; display: flex; flex-direction: column-reverse; border: 1px solid #444; }
+        .exp-bar-bg { width: 100%; height: 8px; background: #111; border-radius: 4px; overflow: hidden; margin-top: 5px; }
+        .exp-bar-fill { height: 100%; background: #2ecc71; width: 0%; transition: 0.5s; }
+        #battle-log { height: 180px; background: #000; padding: 10px; font-size: 13px; overflow-y: auto; border-radius: 10px; display: flex; flex-direction: column-reverse; border: 1px solid #444; }
         .hidden { display: none !important; }
-        .pixel-img { width: 100px; height: 100px; object-fit: contain; image-rendering: pixelated; border: 2px solid var(--accent); border-radius: 10px; background: #222; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 12px; margin-top: 10px; }
-        input[type="text"], input[type="password"] { width: 90%; padding: 10px; margin: 5px 0; border-radius: 5px; border: none; }
+        .pixel-img { width: 90px; height: 90px; object-fit: contain; image-rendering: pixelated; border: 2px solid var(--accent); background: #000; border-radius: 10px; }
+        .bp-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); margin: 4px 0; padding: 8px; border-radius: 8px; }
+        .bp-btn { width: 40px; height: 35px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; color: white; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
     <div class="side-panel">
-        <h2 style="color:var(--accent); text-align:center; margin:0;">MONOMONO</h2>
-        <div id="side-img-view" style="text-align:center; margin:15px 0;">👤</div>
-        <div id="disp-name" style="text-align:center; font-size:20px; font-weight:bold;">ゲスト</div>
-        <div id="disp-level" style="text-align:center; font-size:14px; color:var(--accent); margin-bottom:10px;">Lv.-- 冒険者</div>
+        <div id="side-img-view" style="text-align:center;">👤</div>
+        <div id="disp-name" style="text-align:center; font-size:22px; font-weight:bold; margin:5px 0;">ゲスト</div>
+        <div id="disp-level" style="text-align:center; font-size:14px; color:var(--accent);">Lv.-- 冒険者</div>
+        
         <div class="hp-bar-bg"><div id="p-hp-bar" class="hp-bar-fill"></div></div>
         <div id="hp-text" style="font-size:12px; text-align:center;">HP: -- / --</div>
-        <div class="stat-grid" id="stat-list"></div>
-        <hr style="width:100%; opacity:0.1; margin:15px 0;">
-        <h4 style="margin:0; color:#00d2ff;">👥 フレンド</h4>
-        <div id="friend-list" style="flex-grow:1; font-size:12px; overflow-y:auto;"></div>
-        <div id="gold-disp" style="text-align:center; color:#f1c40f; font-weight:bold; font-size:18px;">💰 500</div>
+        
+        <div id="stat-list" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; margin-top:15px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;"></div>
+        
+        <div style="margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px;"><span>EXP</span><span id="exp-text">0/100</span></div>
+            <div class="exp-bar-bg"><div id="p-exp-bar" class="exp-bar-fill"></div></div>
+        </div>
+
+        <div id="gold-disp" style="text-align:center; color:#f1c40f; font-size:20px; font-weight:bold; margin-top:20px;">💰 0</div>
+        <hr style="opacity:0.1; margin:20px 0;">
+        <div id="my-code-disp" style="font-size:10px; text-align:center; color:#888;"></div>
     </div>
 
     <div class="main-panel">
         <div id="login-ui">
-            <h3>🔑 ログイン / 登録</h3>
-            <input type="text" id="login-id" placeholder="ユーザーID（半角英数）">
-            <input type="password" id="login-pw" placeholder="パスワード">
-            <p style="font-size:11px; color:#ccc;">新しく始める場合は画像を選択してください：</p>
-            <input type="file" id="img-upload" accept="image/*">
-            <button class="btn" onclick="auth()" style="background:var(--accent); color:black; margin-top:20px;">世界に入る</button>
+            <h2>🌍 MONOMONO ONLINE</h2>
+            <input type="text" id="login-id" placeholder="名前を入力" style="width:90%; padding:12px; font-size:16px;">
+            <p style="font-size:12px; margin-top:15px;">自分の姿を選んでください：</p>
+            <input type="file" id="img-upload">
+            <button class="btn" onclick="auth()" style="background:var(--accent); color:black; margin-top:20px;">世界へ降り立つ</button>
         </div>
 
-        <div id="job-ui" class="hidden">
-            <h3>職業を選択してください</h3>
-            <div id="job-btns"></div>
-        </div>
+        <div id="job-ui" class="hidden"><h3>初期クラスを選択</h3><div id="job-btns"></div></div>
 
         <div id="point-ui" class="hidden">
-            <h3>能力調整 (残りBP:<span id="bp-val">0</span>)</h3>
+            <h3>ステータス強化 (残りBP:<span id="bp-val" style="color:var(--accent); font-size:24px;">0</span>)</h3>
             <div id="point-config"></div>
-            <button class="btn" id="point-ok" onclick="saveAndGoMenu()" style="background:var(--accent); color:black;">決定</button>
+            <button class="btn" id="point-ok" onclick="saveAndGoMenu()" style="background:var(--accent); color:black;">能力を確定する</button>
         </div>
 
         <div id="menu-ui" class="hidden">
             <h2 id="floor-tag">第1階層</h2>
-            <button class="btn" style="background:#27ae60; height:60px;" onclick="showSub('area-ui')">⚔ 探索（通常エリア）</button>
-            <button class="btn" style="background:var(--tower);" onclick="showSub('tower-ui')">🗼 試練の塔</button>
-            <button class="btn" style="background:#2980b9;" onclick="showSub('online-ui')">🌐 オンライン / フレンド</button>
-            <button class="btn" style="background:#e67e22;" onclick="startCoop()">🤝 フレンドと共闘</button>
-            <p style="text-align:center; font-size:12px; color:#aaa;">Next Level: <span id="exp-needed"></span> EXP</p>
+            <button class="btn" onclick="showSub('area-ui')" style="background:#27ae60;">⚔ モンスター探索</button>
+            <button class="btn" onclick="showSub('tower-ui')" style="background:#8e44ad;">🗼 試練の塔に挑む</button>
+            <button class="btn" onclick="showSub('online-ui')" style="background:#2980b9;">🌐 フレンド・オンライン</button>
+            <button class="btn" onclick="startCoop()" style="background:#e67e22;">🤝 フレンドと共闘</button>
         </div>
 
         <div id="area-ui" class="hidden">
-            <h3>探索場所</h3>
-            <div id="area-btns"></div>
-            <button class="btn hidden" id="boss-btn" style="background:#d35400;">👿 階層ボス出現！</button>
-            <button class="btn" onclick="showSub('menu-ui')">戻る</button>
+            <h3>探索エリア</h3><div id="area-btns"></div>
+            <button class="btn" onclick="showSub('menu-ui')">キャンプに戻る</button>
         </div>
 
         <div id="tower-ui" class="hidden">
-            <h3 style="color:var(--tower);">🗼 試練の塔</h3>
-            <p>現在の最高到達点: <span id="tower-best">0</span> 階</p>
-            <button class="btn" style="background:var(--tower);" onclick="startTower()">塔へ挑む</button>
+            <h3>🗼 試練の塔</h3>
+            <p>現在の最高記録: <b id="tower-best">0</b> 階</p>
+            <button class="btn" onclick="startTower()" style="background:#8e44ad;">上の階へ進む</button>
             <button class="btn" onclick="showSub('menu-ui')">戻る</button>
         </div>
 
         <div id="online-ui" class="hidden">
-            <h3>🌐 オンライン機能</h3>
-            <p style="font-size:11px;">マイコード:</p>
-            <input type="text" id="my-code" readonly style="background:#000; color:#0f0; font-size:10px;">
-            <hr style="opacity:0.2;">
-            <input type="text" id="target-code" placeholder="相手のコードを入力">
-            <button class="btn" onclick="addFriend()">➕ フレンド追加</button>
-            <button class="btn" onclick="startPvP()" style="background:#c0392b;">⚔ 対戦する</button>
+            <h3>🌐 オンライン</h3>
+            <input type="text" id="target-code" placeholder="MONO-XXXX-XXXX-XXXX" style="width:90%; padding:10px;">
+            <button class="btn" onclick="addFriend()">フレンド登録</button>
             <button class="btn" onclick="showSub('menu-ui')">戻る</button>
         </div>
 
         <div id="battle-ui" class="hidden">
-            <div style="display:flex; justify-content:space-around; align-items:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px;">
-                <div id="p-side">
-                    <div id="p-battle-img"></div>
-                    <div class="hp-bar-bg" style="width:70px;"><div id="p-b-hp" class="hp-bar-fill"></div></div>
-                </div>
-                <div id="c-side" class="hidden">
-                    <div id="c-battle-img"></div>
-                    <div class="hp-bar-bg" style="width:70px;"><div id="c-b-hp" class="hp-bar-fill"></div></div>
-                </div>
-                <div style="font-weight:bold; color:#ff4757; font-size:24px;">VS</div>
-                <div id="e-side">
+            <div style="display:flex; justify-content:space-around; align-items:center; background:rgba(0,0,0,0.6); padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #444;">
+                <div id="p-battle-img"></div>
+                <div id="c-battle-area" class="hidden"><div id="c-battle-img"></div></div>
+                <div style="color:#ff4757; font-weight:bold; font-size:24px; text-shadow:0 0 10px red;">VS</div>
+                <div id="e-side" style="text-align:center;">
                     <div id="e-icon" style="font-size:50px;">👿</div>
-                    <div class="hp-bar-bg" style="width:70px;"><div id="e-b-hp" class="hp-bar-fill"></div></div>
+                    <div class="hp-bar-bg" style="width:80px;"><div id="e-b-hp" class="hp-bar-fill"></div></div>
                 </div>
             </div>
             <div id="battle-log"></div>
@@ -121,184 +111,167 @@ const JOB_DATA = {
     "魔法使い": {hp:10, atk:5, matk:22, def:6, spd:10, magic:true},
     "戦士": {hp:25, atk:13, def:15, spd:5},
     "盗賊": {hp:12, atk:12, def:7, spd:22},
-    "弓使い": {hp:12, atk:16, def:8, spd:16},
     "僧侶": {hp:18, atk:8, def:12, spd:9, matk:12, magic:true}
 };
-const AREA_DATA = [
-    {id:0, n:"静かな森", i:"🌲", en:"スライム", hp:60, atk:12, exp:35},
-    {id:1, n:"輝く海", i:"🌊", en:"カニ", hp:70, atk:15, exp:40},
-    {id:2, n:"灼熱砂漠", i:"🌵", en:"サボテン", hp:65, atk:18, exp:45},
-    {id:3, n:"暗い墓場", i:"🪦", en:"ゾンビ", hp:85, atk:14, exp:50}
-];
 
-let p = null, bLoop = null, userImg = "";
+let p = null, curHp = 0, bLoop = null, userImg = "", baseStats = {};
 
-// --- システム ---
+// --- 認証 ---
 function auth() {
     const id = document.getElementById('login-id').value;
-    if(!id) return alert("IDを入力してください");
-    const saved = localStorage.getItem('mono_v4_' + id);
+    if(!id) return alert("名前を入力してください");
+    const saved = localStorage.getItem('mono_v6_' + id);
     if(saved) {
-        p = JSON.parse(saved);
-        userImg = p.img;
-        showSub('menu-ui');
+        p = JSON.parse(saved); userImg = p.img; curHp = p.stats.hp * 5; showSub('menu-ui');
     } else {
-        if(!userImg) return alert("初回は画像を選んでください");
-        p = { name: id, job:"", lv:1, exp:0, bp:14, stats:{}, floor:1, tower:0, cleared:[], gold:500, img:userImg, friends:[] };
+        if(!userImg) return alert("画像を選択してください");
+        p = { name: id, job:"", lv:1, exp:0, gold:0, bp:14, stats:{}, floor:1, tower:0, cleared:[], img:userImg, friends:[], fCode: genCode() };
         showSub('job-ui');
-        const jb = document.getElementById('job-btns');
-        jb.innerHTML = Object.keys(JOB_DATA).map(j => `<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
+        document.getElementById('job-btns').innerHTML = Object.keys(JOB_DATA).map(j => `<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
     }
     updateUI();
 }
 
 function setJob(j) {
-    p.job = j; p.stats = {...JOB_DATA[j]};
-    showSub('point-ui');
-    renderPoints();
+    p.job = j; p.stats = {...JOB_DATA[j]}; baseStats = {...JOB_DATA[j]};
+    p.bp = 14; showSub('point-ui'); renderPoints();
+}
+
+function adjStat(k, v) {
+    if(v > 0 && p.bp > 0) { p.stats[k]++; p.bp--; }
+    if(v < 0 && p.stats[k] > baseStats[k]) { p.stats[k]--; p.bp++; }
+    renderPoints(); updateUI();
 }
 
 function renderPoints() {
-    const box = document.getElementById('point-config');
-    box.innerHTML = Object.keys(p.stats).map(k => `
-        <div style="display:flex; justify-content:space-between; padding:5px; background:rgba(255,255,255,0.05); margin:2px; border-radius:5px;">
-            <span>${k.toUpperCase()}: ${p.stats[k]}</span>
-            <button onclick="addBp('${k}')" style="width:40px;">+</button>
+    document.getElementById('point-config').innerHTML = Object.keys(p.stats).map(k => `
+        <div class="bp-row">
+            <span>${k.toUpperCase()}: <b>${p.stats[k]}</b></span>
+            <div>
+                <button class="bp-btn" onclick="adjStat('${k}',-1)" style="background:#e74c3c;">-</button>
+                <button class="bp-btn" onclick="adjStat('${k}',1)" style="background:#2ecc71;">+</button>
+            </div>
         </div>`).join('');
     document.getElementById('bp-val').innerText = p.bp;
-    document.getElementById('point-ok').disabled = p.bp > 0;
 }
-
-function addBp(k) { if(p.bp > 0){ p.stats[k]++; p.bp--; renderPoints(); updateUI(); } }
 
 function saveAndGoMenu() {
-    p.img = userImg;
-    localStorage.setItem('mono_v4_' + p.name, JSON.stringify(p));
-    updateUI();
-    showSub('menu-ui');
+    p.img = userImg; curHp = p.stats.hp * 5; // 全回復
+    localStorage.setItem('mono_v6_' + p.name, JSON.stringify(p));
+    updateUI(); showSub('menu-ui');
 }
 
-// --- バトル ---
+// --- 戦闘ロジック ---
 function startBattle(e, isCoop = false) {
     showSub('battle-ui');
     const log = document.getElementById('battle-log');
-    log.innerHTML = `<div>${e.n || e.en}が現れた！</div>`;
+    log.innerHTML = `<div><b>${e.en}</b> が現れた！</div>`;
     
-    let curP = p.stats.hp * 5, maxP = p.stats.hp * 5;
-    let curE = e.hp, maxE = e.hp;
+    // 戦闘開始時にHPをリセット（引き継ぎバグ防止）
+    curHp = p.stats.hp * 5;
+    let maxP = p.stats.hp * 5, curE = e.hp, maxE = e.hp;
     let partner = (isCoop && p.friends.length > 0) ? p.friends[0] : null;
-    let curC = partner ? partner.s.hp * 5 : 0;
 
-    document.getElementById('p-battle-img').innerHTML = `<img src="${userImg}" class="pixel-img" style="width:60px;height:60px;">`;
+    document.getElementById('p-battle-img').innerHTML = `<img src="${userImg}" class="pixel-img" style="width:60px;">`;
     document.getElementById('e-icon').innerText = e.i || "👿";
+    document.getElementById('e-b-hp').style.width = "100%";
     
-    if(partner) {
-        document.getElementById('c-side').classList.remove('hidden');
-        document.getElementById('c-battle-img').innerHTML = `<img src="${partner.img}" class="pixel-img" style="width:40px;height:40px;">`;
-    } else { document.getElementById('c-side').classList.add('hidden'); }
-
     bLoop = setInterval(() => {
-        // 自
-        let d = Math.max(1, (p.stats.magic?p.stats.matk:p.stats.atk) - Math.floor((e.def||5)/2));
+        // プレイヤーの攻撃
+        let pAtkVal = p.stats.magic ? p.stats.matk : p.stats.atk;
+        let d = Math.max(1, pAtkVal - Math.floor((e.def || 5)/2));
         curE -= d; log.innerHTML += `<div>⚔ ${p.name}の攻撃: ${d}ダメージ</div>`;
-        // 友
+
         if(partner && curE > 0) {
-            let cd = Math.max(1, partner.s.atk - Math.floor((e.def||5)/2));
-            curE -= cd; log.innerHTML += `<div style="color:#00d2ff;">🤝 フレンドの加勢: ${cd}ダメージ</div>`;
+            let cd = Math.max(1, partner.s.atk - Math.floor((e.def || 5)/2));
+            curE -= cd; log.innerHTML += `<div style="color:#2ecc71;">🤝 フレンドの追撃: ${cd}ダメージ</div>`;
         }
-        // 敵
+
+        // 敵の攻撃（防御計算で回復しないようにMath.max(1,...)）
         if(curE > 0) {
             let ed = Math.max(1, e.atk - Math.floor(p.stats.def/2));
-            curP -= ed; log.innerHTML += `<div style="color:red;">💥 敵の攻撃: ${ed}ダメージ</div>`;
+            curHp -= ed; log.innerHTML += `<div style="color:#ff4757;">💥 敵の反撃: ${ed}ダメージ</div>`;
         }
 
-        document.getElementById('p-b-hp').style.width = (curP/maxP*100) + "%";
         document.getElementById('e-b-hp').style.width = (curE/maxE*100) + "%";
-        if(partner) document.getElementById('c-b-hp').style.width = (curC/(partner.s.hp*5)*100) + "%";
+        updateUI();
 
-        if(curE <= 0) { finish(true, e); }
-        else if(curP <= 0) { finish(false); }
-    }, 1200);
+        if(curE <= 0) { 
+            clearInterval(bLoop);
+            const getGold = Math.floor(e.exp * 0.8);
+            alert(`勝利！\n${e.exp} EXP / ${getGold} Gold 獲得`);
+            p.exp += e.exp; p.gold += getGold;
+            checkLvUp();
+        } else if(curHp <= 0) { 
+            clearInterval(bLoop);
+            alert("意識が遠のく...");
+            curHp = maxP; saveAndGoMenu();
+        }
+    }, 1000);
 }
 
-function finish(win, e) {
-    clearInterval(bLoop);
-    setTimeout(() => {
-        if(win) {
-            alert("勝利！ " + (e.exp||0) + " EXP獲得");
-            p.exp += e.exp || 0;
-            if(e.isBoss) { p.floor++; p.cleared = []; }
-            else if(e.id !== undefined && !p.cleared.includes(e.id)) p.cleared.push(e.id);
-            if(e.tower) p.tower = Math.max(p.tower, e.tower);
-            checkLv();
-        } else { alert("敗北..."); }
+function checkLvUp() {
+    let nextExp = p.lv * 100;
+    if(p.exp >= nextExp) {
+        p.exp -= nextExp; p.lv++; p.bp += 3;
+        curHp = p.stats.hp * 5; // 全回復
+        baseStats = {...p.stats}; // 現在の値をベースに更新
+        alert("LEVEL UP! BPを3獲得しました。");
+        showSub('point-ui'); renderPoints();
+    } else {
         saveAndGoMenu();
-    }, 500);
+    }
 }
 
-function checkLv() {
-    while(p.exp >= p.lv * 100) { p.exp -= p.lv*100; p.lv++; p.bp+=3; alert("Level Up!"); showSub('point-ui'); renderPoints(); }
+// --- ユーティリティ ---
+function genCode() {
+    let r = "MONO-";
+    for(let i=0; i<3; i++) {
+        r += Math.floor(Math.random()*9000+1000);
+        if(i<2) r += "-";
+    }
+    return r;
 }
 
-function startTower() {
-    const floor = p.tower + 1;
-    startBattle({ en:`塔 ${floor}階`, hp:60+floor*25, atk:10+floor*4, exp:50+floor*10, tower:floor, i:"🗼" });
-}
-
-function startCoop() {
-    if(p.friends.length === 0) return alert("フレンドがいません。オンラインから追加してください。");
-    startBattle({ en:"レイドボス", hp:400*p.floor, atk:30*p.floor, exp:200, i:"🐉" }, true);
-}
-
-// --- オンライン ---
-function generateCode() {
-    const d = { n:p.name, j:p.job, s:p.stats, l:p.lv, img:p.img };
-    document.getElementById('my-code').value = btoa(unescape(encodeURIComponent(JSON.stringify(d))));
-}
-
-function addFriend() {
-    const code = document.getElementById('target-code').value;
-    try {
-        const f = JSON.parse(decodeURIComponent(escape(atob(code))));
-        if(!p.friends.find(x => x.n === f.n)) p.friends.push(f);
-        alert(f.n + "をフレンドに追加しました"); updateUI(); saveAndGoMenu();
-    } catch(e) { alert("コードが正しくありません"); }
-}
-
-function startPvP() {
-    const code = document.getElementById('target-code').value;
-    try {
-        const f = JSON.parse(decodeURIComponent(escape(atob(code))));
-        startBattle({ en:f.n, hp:f.s.hp*5, atk:f.s.atk, def:f.s.def, exp:0, i:"👤" });
-    } catch(e) { alert("コードが正しくありません"); }
-}
-
-// --- UI ---
 function updateUI() {
     if(!p) return;
+    const maxP = p.stats.hp * 5;
+    const nextExp = p.lv * 100;
+    
     document.getElementById('disp-name').innerText = p.name;
     document.getElementById('disp-level').innerText = `Lv.${p.lv} ${p.job}`;
     document.getElementById('side-img-view').innerHTML = `<img src="${p.img}" class="pixel-img">`;
-    document.getElementById('hp-text').innerText = `HP: ${p.stats.hp*5} / ${p.stats.hp*5}`;
-    document.getElementById('p-hp-bar').style.width = "100%";
+    document.getElementById('hp-text').innerText = `HP: ${curHp} / ${maxP}`;
+    document.getElementById('p-hp-bar').style.width = (curHp/maxP*100) + "%";
+    document.getElementById('exp-text').innerText = `${p.exp} / ${nextExp}`;
+    document.getElementById('p-exp-bar').style.width = (p.exp/nextExp*100) + "%";
     document.getElementById('gold-disp').innerText = `💰 ${p.gold}`;
-    document.getElementById('exp-needed').innerText = (p.lv*100) - p.exp;
-    document.getElementById('floor-tag').innerText = `第${p.floor}階層`;
+    document.getElementById('my-code-disp').innerText = "マイコード: " + p.fCode;
     document.getElementById('tower-best').innerText = p.tower;
     document.getElementById('stat-list').innerHTML = Object.keys(p.stats).map(k => `<div>${k.toUpperCase()}: ${p.stats[k]}</div>`).join('');
-    document.getElementById('friend-list').innerHTML = p.friends.map(f => `<div>・${f.n} (Lv.${f.l})</div>`).join('');
-    generateCode();
 }
 
 function showSub(id) {
     ["login-ui", "job-ui", "point-ui", "menu-ui", "area-ui", "tower-ui", "online-ui", "battle-ui"].forEach(s => document.getElementById(s).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
     if(id === 'area-ui') {
-        document.getElementById('area-btns').innerHTML = AREA_DATA.map(a => `<button class="btn" onclick='startBattle(${JSON.stringify(a)})'>${a.i} ${a.n} ${p.cleared.includes(a.id)?"✔":""}</button>`).join('');
-        const b = document.getElementById('boss-btn');
-        b.className = p.cleared.length >= 4 ? "btn" : "btn hidden";
-        b.onclick = () => startBattle({ en:"階層ボス", hp:200*p.floor, atk:25*p.floor, exp:200, isBoss:true, i:"👿" });
+        const areaList = [
+            {en:"はぐれスライム", hp:40, atk:8, exp:30, i:"💧"},
+            {en:"荒くれゴブリン", hp:60, atk:14, exp:50, i:"👺"},
+            {en:"さまよう鎧", hp:100, atk:18, def:10, exp:80, i:"🛡"}
+        ];
+        document.getElementById('area-btns').innerHTML = areaList.map(a => `<button class="btn" onclick='startBattle(${JSON.stringify(a)})'>${a.i} ${a.en}</button>`).join('');
     }
+}
+
+function startTower() {
+    let floor = p.tower + 1;
+    startBattle({ en:`塔 ${floor}階の番人`, hp:50+floor*30, atk:10+floor*5, def:floor*2, exp:60+floor*10, i:"🗼" });
+}
+
+function startCoop() {
+    if(p.friends.length === 0) return alert("フレンドがいません");
+    startBattle({ en:"レイドボス：黒龍", hp:1000, atk:40, def:20, exp:300, i:"🐉" }, true);
 }
 
 document.getElementById('img-upload').onchange = (e) => {
