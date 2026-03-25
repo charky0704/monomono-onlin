@@ -1,243 +1,99 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>モノモノ オンライン</title>
-    <style>
-        :root { --main-bg: #1a1a1a; --panel-bg: #222; --accent: #ffce00; }
-        body { background: var(--main-bg); color: white; font-family: 'Courier New', monospace; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        .game-container { display: flex; flex-direction: row; width: 100%; max-width: 900px; gap: 10px; height: 90vh; }
-        .side-panel { flex: 1; background: var(--panel-bg); border: 3px solid #555; padding: 10px; display: flex; flex-direction: column; overflow-y: auto; }
-        .main-panel { flex: 2; background: var(--panel-bg); border: 3px solid #555; padding: 10px; display: flex; flex-direction: column; position: relative; overflow-y: auto; }
-        @media (max-width: 600px) { .game-container { flex-direction: column; height: auto; overflow: visible; } body { height: auto; } }
-        h1 { color: var(--accent); font-size: 18px; margin: 0 0 10px 0; text-align: center; }
-        .pixel-img { width: 100px; height: 100px; object-fit: contain; image-rendering: pixelated; background: #333; border: 2px solid #555; }
-        .btn { width: 100%; padding: 10px; margin: 4px 0; background: #444; color: white; border: 1px solid #888; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .btn:hover:not(:disabled) { background: #666; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .hp-bar-bg { width: 100%; height: 12px; background: #500; border: 1px solid #fff; margin: 5px 0; position: relative; }
-        .hp-bar-fill { height: 100%; background: #ff4757; width: 100%; transition: width 0.2s ease-out; }
-        #battle-log { flex-grow: 1; border: 2px solid #444; padding: 8px; font-size: 12px; overflow-y: auto; background: #000; color: #0f0; margin-top: 10px; min-height: 150px; display: flex; flex-direction: column-reverse; }
-        .hidden { display: none !important; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 11px; margin-top: 10px; border-top: 1px solid #444; padding-top: 10px; }
-    </style>
-</head>
-<body>
+// --- バトルロジック部分の全入れ替えコード ---
 
-<div class="game-container">
-    <div class="side-panel">
-        <h1>モノモノ</h1>
-        <div id="side-img-view" style="font-size:60px; background:#333; border:2px solid #555; height:100px; display:flex; align-items:center; justify-content:center;">👤</div>
-        <div style="font-size:16px; font-weight:bold; margin-top:10px; text-align:center;" id="disp-name">???</div>
-        <div id="disp-job" style="font-size:12px; color:var(--accent); text-align:center; margin-bottom:10px;">未設定</div>
-        <div class="hp-bar-bg"><div id="p-hp-bar" class="hp-bar-fill"></div></div>
-        <div id="hp-text" style="font-size:11px; text-align:center;">HP: -- / --</div>
-        <div class="stat-grid" id="stat-list"></div>
-        <div id="gold-display" style="margin-top:15px; color:#f1c40f; font-weight:bold; text-align:center;">GOLD: 500</div>
-    </div>
-
-    <div class="main-panel">
-        <div id="setup-ui">
-            <h3>1. キャラクター作成</h3>
-            <input type="text" id="p-name-input" placeholder="名前を入力" maxlength="8" style="width:90%; padding:8px; background:#000; color:#fff; border:1px solid var(--accent); margin-bottom:10px;">
-            <input type="file" accept="image/*" id="img-upload">
-            <button class="btn" onclick="checkProfile()" style="background:var(--accent); color:#000; margin-top:20px;">職業選択へ ➔</button>
-        </div>
-
-        <div id="job-ui" class="hidden">
-            <h3>2. 職業を選択</h3>
-            <div id="job-btns"></div>
-        </div>
-
-        <div id="point-ui" class="hidden">
-            <h3>3. 能力調整 (BP:<span id="bp">14</span>)</h3>
-            <div id="point-config"></div>
-            <button class="btn" id="confirm-btn" onclick="toMenu()" disabled style="background:var(--accent); color:#000;">冒険を開始！</button>
-        </div>
-
-        <div id="menu-ui" class="hidden">
-            <button class="btn" style="background:#c0392b; height:60px;" onclick="startBattle()">⚔ 探索 (スライムの森)</button>
-            <button class="btn" onclick="alert('武器屋は現在改修中...')">🛒 武器屋</button>
-            <div id="log-area" style="margin-top:20px; font-size:12px; color:#aaa;">拠点にて休息中...</div>
-        </div>
-
-        <div id="battle-ui" class="hidden">
-            <div style="display:flex; justify-content:space-around; align-items:center; background:#111; padding:15px; border:1px solid #444;">
-                <div id="p-battle-view">👤</div>
-                <div id="battle-vs" style="font-size:20px; color:red; font-weight:bold;">VS</div>
-                <div>
-                    <div class="hp-bar-bg" style="width:80px;"><div id="e-hp-bar" class="hp-bar-fill"></div></div>
-                    <div id="e-view" style="font-size:40px;">💧</div>
-                </div>
-            </div>
-            <div id="battle-log"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-const jobData = {
-    "剣士": {hp:12, mp:5, atk:15, def:8, matk:5, mdef:8, spd:12, crit:0.2},
-    "戦士": {hp:20, mp:3, atk:18, def:12, matk:2, mdef:5, spd:6, crit:0.05},
-    "魔法使い": {hp:8, mp:25, atk:4, def:5, matk:20, mdef:15, spd:8, crit:0.05, magicType: true},
-    "盗賊": {hp:10, mp:8, atk:10, def:6, matk:6, mdef:6, spd:20, crit:0.25},
-    "弓使い": {hp:10, mp:10, atk:14, def:7, matk:5, mdef:7, spd:15, crit:0.2},
-    "魔物使い": {hp:12, mp:15, atk:8, def:8, matk:8, mdef:8, spd:10, pet:true},
-    "大盾使い": {hp:25, mp:5, atk:8, def:20, matk:2, mdef:12, spd:4, crit:0.02},
-    "僧侶": {hp:15, mp:20, atk:6, def:10, matk:10, mdef:18, spd:8, crit:0.05, magicType: true}
-};
-
-let myStats = null;
-let maxHP, curHP, points = 14, gold = 500, playerName = "", userImg = null;
-const statNames = {hp:"体力", mp:"魔力", atk:"攻撃", def:"防御", matk:"魔攻", mdef:"魔防", spd:"速度"};
-
-document.getElementById('img-upload').onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        userImg = ev.target.result;
-        document.getElementById('side-img-view').innerHTML = `<img src="${userImg}" class="pixel-img">`;
-        document.getElementById('p-battle-view').innerHTML = `<img src="${userImg}" class="pixel-img">`;
-    };
-    reader.readAsDataURL(file);
-};
-
-function checkProfile() {
-    playerName = document.getElementById('p-name-input').value.trim();
-    if (!playerName || !userImg) return alert("名前と画像を設定してください！");
-    document.getElementById('disp-name').innerText = playerName;
-    showSub('job-ui');
-    const jBox = document.getElementById('job-btns');
-    jBox.innerHTML = "";
-    Object.keys(jobData).forEach(j => {
-        jBox.innerHTML += `<button class="btn" onclick="selectJob('${j}')">${j}</button>`;
-    });
-}
-
-function selectJob(name) {
-    myStats = {...jobData[name], job: name};
-    showSub('point-ui');
-    document.getElementById('disp-job').innerText = name;
-    renderPoints();
-    updateStatusDisplay();
-}
-
-function renderPoints() {
-    const div = document.getElementById('point-config');
-    div.innerHTML = "";
-    Object.keys(statNames).forEach(k => {
-        div.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; margin:5px; background:#333; padding:5px;">
-            <span>${statNames[k]}: ${myStats[k]}</span>
-            <button class="btn" style="width:40px; margin:0;" onclick="addPoint('${k}')">+</button>
-        </div>`;
-    });
-}
-
-function addPoint(k) {
-    if (points > 0) {
-        myStats[k]++; points--;
-        document.getElementById('bp').innerText = points;
-        renderPoints();
-        updateStatusDisplay();
-        if (points === 0) document.getElementById('confirm-btn').disabled = false;
-    }
-}
-
-function updateStatusDisplay() {
-    const list = document.getElementById('stat-list');
-    list.innerHTML = "";
-    Object.keys(statNames).forEach(k => { list.innerHTML += `<div>${statNames[k]}: ${myStats[k]}</div>`; });
-    if (myStats.job) {
-        maxHP = myStats.hp * 5;
-        if (!curHP) curHP = maxHP;
-        document.getElementById('hp-text').innerText = `HP: ${curHP} / ${maxHP}`;
-        document.getElementById('p-hp-bar').style.width = Math.max(0, (curHP/maxHP*100)) + "%";
-    }
-    document.getElementById('gold-display').innerText = `GOLD: ${gold}`;
-}
-
-function toMenu() { showSub('menu-ui'); }
-
-function showSub(id) {
-    ["setup-ui", "job-ui", "point-ui", "menu-ui", "battle-ui"].forEach(s => document.getElementById(s).classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-}
-
-// バトルロジック
 function startBattle() {
     showSub('battle-ui');
     const log = document.getElementById('battle-log');
-    log.innerHTML = "<div>スライムが現れた！</div>";
-    let enemy = { name: "スライム", hp: 60, max: 60, atk: 10, matk: 2, def: 5, mdef: 5, spd: 5 };
+    log.innerHTML = "<div style='color:#ffce00'>モンスターが現れた！</div>";
+    
+    // スライムの攻撃力を少し上げ、守備力を設定
+    let enemy = { name: "スライム", hp: 60, max: 60, atk: 15, matk: 5, def: 5, mdef: 5, spd: 8 };
     document.getElementById('e-hp-bar').style.width = "100%";
-    document.getElementById('e-view').innerText = "💧";
+    
+    // バトルのメインループ（1.5秒ごとに1ターン進行）
+    const battleInterval = setInterval(() => {
+        
+        // AがBを攻撃する内部関数
+        const executeTurn = (attacker, target, isPlayerAttacking) => {
+            if (curHP <= 0 || enemy.hp <= 0) return true; // どちらかが死んでたら中断
 
-    const turn = setInterval(() => {
+            if (isPlayerAttacking) {
+                if (pAtk(enemy, log)) { finish(battleInterval, true); return true; }
+            } else {
+                if (eAtk(enemy, log)) { finish(battleInterval, false); return true; }
+            }
+            return false;
+        };
+
+        // 速度比較で順番を決める
         if (myStats.spd >= enemy.spd) {
-            if (pAtk(enemy, log)) return finish(turn, true);
-            if (eAtk(enemy, log)) return finish(turn, false);
+            // プレイヤー先制
+            executeTurn(null, null, true); 
+            // 0.5秒後に敵の反撃（プレイヤーが倒してなければ）
+            setTimeout(() => {
+                if (enemy.hp > 0) executeTurn(null, null, false);
+            }, 500);
         } else {
-            if (eAtk(enemy, log)) return finish(turn, false);
-            if (pAtk(enemy, log)) return finish(turn, true);
+            // 敵が先制
+            executeTurn(null, null, false);
+            // 0.5秒後にプレイヤーの反撃（自分が生きていれば）
+            setTimeout(() => {
+                if (curHP > 0) executeTurn(null, null, true);
+            }, 500);
         }
-    }, 1000);
+
+    }, 1500); // ターンごとの間隔を少し広げて見やすく
 }
 
 function pAtk(e, log) {
     let dmg, msg, isCrit = Math.random() < myStats.crit;
-    
-    // 魔法使い・僧侶、または一定確率（魔力依存）で魔法攻撃
     const useMagic = myStats.magicType || (Math.random() < (myStats.mp / 50));
-
+    
     if (useMagic) {
         dmg = Math.max(1, Math.floor(myStats.matk * (isCrit?1.5:1) - (e.mdef/2)));
-        msg = `✨ ${playerName}の魔法！ ${dmg}のダメージ！`;
+        msg = `✨ ${playerName}の魔法！ ${dmg}ダメージ！`;
     } else {
         dmg = Math.max(1, Math.floor(myStats.atk * (isCrit?2:1) - (e.def/2)));
-        msg = `⚔ ${playerName}の攻撃！ ${dmg}のダメージ！${isCrit?'★':''}`;
+        msg = `⚔ ${playerName}の攻撃！ ${dmg}ダメージ！${isCrit?'★':''}`;
     }
-
+    
     e.hp = Math.max(0, e.hp - dmg);
-    document.getElementById('e-hp-bar').style.width = (e.hp/e.max*100) + "%";
+    document.getElementById('e-hp-bar').style.width = (e.hp / e.max * 100) + "%";
     log.innerHTML += `<div>${msg}</div>`;
     return e.hp <= 0;
 }
 
 function eAtk(e, log) {
+    // 回避判定
     if (Math.random() < (myStats.spd - e.spd) * 0.05) {
-        log.innerHTML += `<div style="color:cyan;">💨 回避！</div>`; return false;
+        log.innerHTML += `<div style="color:cyan;">💨 ${playerName}はひらりと身をかわした！</div>`; 
+        return false;
     }
-    let d = Math.max(1, Math.floor(e.atk - (myStats.def/3)));
+
+    let d = Math.max(1, Math.floor(e.atk - (myStats.def / 3)));
     curHP = Math.max(0, curHP - d);
-    updateStatusDisplay();
-    log.innerHTML += `<div style="color:red;">💥 敵の攻撃！ ${d}のダメージ！</div>`;
+    
+    updateStatusDisplay(); // 左パネルを即更新
+    log.innerHTML += `<div style="color:#ff6b81;">💥 敵の攻撃！ ${d}ダメージ！</div>`;
+    
     return curHP <= 0;
 }
 
-function finish(t, win) {
-    clearInterval(t);
-    const log = document.getElementById('battle-log');
+function finish(intervalId, win) {
+    clearInterval(intervalId); // インターバルを即座に破棄
+    
     setTimeout(() => {
         if (win) {
-            alert("VICTORY! 150G獲得"); gold += 150;
+            alert("VICTORY! 150G獲得"); 
+            gold += 150;
             updateStatusDisplay();
             showSub('menu-ui');
         } else {
-            // ゲームオーバー演出
-            document.getElementById('p-battle-view').style.opacity = "0.3";
-            log.innerHTML += `<div style="color:red; font-size:20px; font-weight:bold;">GAME OVER</div>`;
-            setTimeout(() => {
-                alert("力尽きました... 拠点で復活します");
-                curHP = maxHP; // 全回復で復活
-                document.getElementById('p-battle-view').style.opacity = "1";
-                updateStatusDisplay();
-                showSub('menu-ui');
-            }, 1500);
+            // 敗北時はもっとシビアに
+            alert("敗北しました…。所持金の一部を失い、村へ運ばれました。");
+            gold = Math.floor(gold * 0.7); // 30%失うペナルティ
+            curHP = maxHP; 
+            updateStatusDisplay();
+            showSub('menu-ui');
         }
-    }, 500);
+    }, 600);
 }
-</script>
-</body>
-</html>
