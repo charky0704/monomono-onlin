@@ -2,236 +2,174 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>MONOMONO ONLINE - Sky Edition</title>
+<title>MONOMONO ONLINE - COMPLETE</title>
 
 <style>
 :root { 
-    --panel: rgba(255,255,255,0.9); 
     --accent: #00aaff; 
-    --sub-accent: #0077ff;
-    --xp: #39ff14; 
-    --hp: #ff0055; 
-    --gold: #ffce00;
+    --hp: #ff0055;
 }
 
-/* 🌤 空背景 */
+/* 🌤 空 */
 body { 
     background: linear-gradient(to bottom, #87cefa, #e0f7ff);
-    color: #0a0a12;
-    font-family: 'Segoe UI', sans-serif; 
-    margin: 0; padding: 10px; 
-    display: flex; justify-content: center; 
-    height: 100vh; overflow: hidden;
+    font-family: sans-serif;
+    margin:0;
+    display:flex;
+    justify-content:center;
 }
 
-.game-container { display: flex; width: 100%; max-width: 1200px; gap: 20px; height: 95vh; }
+.panel{background:#fff;padding:20px;border-radius:10px;width:400px}
 
-.panel { 
-    background: var(--panel); 
-    border-radius: 20px; 
-    padding: 20px; 
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-}
-
-.side-panel { flex: 1; min-width: 300px; border-left: 4px solid var(--accent); }
-.main-panel { flex: 2; text-align: center; overflow-y: auto;}
-
-h1,h2{color:var(--accent)}
-
-.btn { 
-    width: 100%; padding: 15px; margin: 10px 0; 
-    background: white; border: 1px solid var(--accent); 
-    border-radius: 12px; cursor: pointer;
-}
-.btn:hover { background: var(--accent); color: white; }
-
-.btn-mini { width:40px;height:40px }
-
-.hidden { display: none !important; }
-
-.bar-bg { height: 12px; background: #ccc; border-radius: 6px; margin:5px 0;}
-.hp-fill { height: 100%; background: red; width: 100%; }
-.xp-fill { height: 100%; background: lime; width: 0%; }
-
-.stat-row { display:flex; justify-content:space-between; margin:5px 0; }
-
-#battle-log {
-    height: 200px;
-    overflow-y: auto;
-    background: #fff;
-    padding: 10px;
-    text-align: left;
-}
+.btn{width:100%;padding:10px;margin:5px;border:1px solid #00aaff;cursor:pointer}
+.hidden{display:none}
+#battle-log{height:150px;overflow:auto;background:#eee;padding:10px}
 </style>
 </head>
 
 <body>
 
-<div class="game-container">
+<div class="panel">
 
-<div id="side-info" class="side-panel panel hidden">
-    <div id="disp-name"></div>
-    <div id="disp-level"></div>
-    <div class="bar-bg"><div id="p-hp-bar" class="hp-fill"></div></div>
-    <div id="hp-text"></div>
-    <div class="bar-bg"><div id="p-xp-bar" class="xp-fill"></div></div>
-    <div id="xp-text"></div>
-    <div id="stat-list"></div>
-    <div id="gold-disp"></div>
-</div>
-
-<div class="main-panel panel">
-
+<!-- タイトル -->
 <div id="start-ui">
-    <h1>MONOMONO ONLINE</h1>
-    <button class="btn" onclick="showSub('create-ui')">NEW GAME</button>
+<h2>MONOMONO ONLINE</h2>
+<button class="btn" onclick="newGame()">新規作成</button>
+<button class="btn" onclick="loadList()">続きから</button>
 </div>
 
+<!-- セーブ一覧 -->
+<div id="load-ui" class="hidden"></div>
+
+<!-- 作成 -->
 <div id="create-ui" class="hidden">
-    <h2>CREATE</h2>
-    <input id="new-name" placeholder="Name">
-    <button class="btn" onclick="createNewChar()">NEXT</button>
+<input id="name" placeholder="名前">
+<input type="file" id="img">
+<button class="btn" onclick="create()">作成</button>
 </div>
 
+<!-- 職業 -->
 <div id="job-ui" class="hidden"></div>
 
-<div id="point-ui" class="hidden">
-    <h2>STATUS</h2>
-    BP:<span id="bp-val"></span>
-    <div id="point-config"></div>
-    <button class="btn" onclick="saveAndGoMenu()">OK</button>
-</div>
-
+<!-- メニュー -->
 <div id="menu-ui" class="hidden">
-    <button class="btn" onclick="encount()">探索</button>
+<div id="player"></div>
+<button class="btn" onclick="battle()">戦闘</button>
+<button class="btn" onclick="save()">セーブ</button>
 </div>
 
+<!-- 戦闘 -->
 <div id="battle-ui" class="hidden">
-    <div id="battle-log"></div>
+<div id="battle-log"></div>
 </div>
 
-</div>
 </div>
 
 <script>
-const JOB_DATA={
-剣士:{hp:15,atk:15,def:10,spd:12},
-魔導士:{hp:10,atk:5,def:5,matk:20,magic:true}
+const JOBS={
+剣士:{hp:15,atk:15,def:10},
+盾:{hp:30,atk:5,def:20},
+弓:{hp:10,atk:12,crit:0.3},
+魔:{hp:8,matk:20,magic:true}
 };
 
-let p=null,curHp=0,initialStats={};
+let p=null,curHp=0,imgData="";
 
-function createNewChar(){
-const name=document.getElementById('new-name').value;
-p={name,lv:1,exp:0,gold:0,bp:10,stats:{},floor:1};
-showSub('job-ui');
-renderJobs();
+function newGame(){
+show("create-ui");
 }
 
-function renderJobs(){
-document.getElementById('job-ui').innerHTML=
-Object.keys(JOB_DATA).map(j=>
-`<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
+function loadList(){
+let html="";
+for(let i=0;i<localStorage.length;i++){
+let k=localStorage.key(i);
+if(k.startsWith("mono")){
+let d=JSON.parse(localStorage.getItem(k));
+html+=`
+<button class="btn" onclick="load('${k}')">${d.name}</button>
+<button onclick="del('${k}')">削除</button>`;
+}
+}
+setHTML("load-ui",html);
+show("load-ui");
 }
 
-function setJob(j){
-p.job=j;
-p.stats={...JOB_DATA[j]};
-initialStats={...p.stats};
-showSub('point-ui');
-renderPoints();
+function del(k){
+localStorage.removeItem(k);
+loadList();
 }
 
-function renderPoints(){
-document.getElementById('bp-val').innerText=p.bp;
-document.getElementById('point-config').innerHTML=
-Object.keys(p.stats).map(k=>
-`<div class="stat-row">${k}:${p.stats[k]}
-<button onclick="adjStat('${k}',1)">+</button>
-<button onclick="adjStat('${k}',-1)">-</button></div>`).join('');
+function load(k){
+p=JSON.parse(localStorage.getItem(k));
+curHp=p.hp;
+show("menu-ui");
+render();
 }
 
-function adjStat(k,v){
-if(v>0&&p.bp>0){p.stats[k]++;p.bp--;}
-if(v<0&&p.stats[k]>initialStats[k]){p.stats[k]--;p.bp++;}
-renderPoints();
+document.getElementById("img").onchange=e=>{
+let r=new FileReader();
+r.onload=v=>imgData=v.target.result;
+r.readAsDataURL(e.target.files[0]);
+};
+
+function create(){
+p={name:val("name"),lv:1,exp:0,gold:0};
+show("job-ui");
+
+setHTML("job-ui",
+Object.keys(JOBS).map(j=>
+`<button class="btn" onclick="job('${j}')">${j}</button>`
+).join(""));
 }
 
-function saveAndGoMenu(){
-curHp=p.stats.hp*5;
-document.getElementById('side-info').classList.remove('hidden');
-showSub('menu-ui');
-updateUI();
+function job(j){
+Object.assign(p,JOBS[j]);
+curHp=p.hp*5;
+show("menu-ui");
+render();
 }
 
-function updateUI(){
-document.getElementById('disp-name').innerText=p.name;
-document.getElementById('disp-level').innerText="Lv."+p.lv;
-document.getElementById('gold-disp').innerText=p.gold;
+function render(){
+setHTML("player",
+`<img src="${imgData}" width="50"><br>
+${p.name} Lv${p.lv}`);
 }
 
-function encount(){
-startBattle({en:"SLIME",hp:40,atk:10,exp:30});
-}
-
-function startBattle(e){
-showSub('battle-ui');
-const log=document.getElementById('battle-log');
-log.innerHTML="敵："+e.en+"<br>";
-
-let hp=e.hp;
+function battle(){
+show("battle-ui");
+let log=document.getElementById("battle-log");
+log.innerHTML="敵出現<br>";
+let hp=30;
 
 let loop=setInterval(()=>{
-let dmg=p.stats.magic?p.stats.matk:p.stats.atk;
-hp-=dmg;
-log.innerHTML+="攻撃 "+dmg+"<br>";
+hp-=p.atk||p.matk;
+log.innerHTML+="攻撃<br>";
 
 if(hp<=0){
 clearInterval(loop);
-finishBattle(true,e);
-}
-},600);
-}
-
-/* 🏆 修正ポイント */
-function finishBattle(win,e){
-const log=document.getElementById('battle-log');
-
-if(win){
-log.innerHTML+="🏆 "+e.en+" を倒した！<br>";
+log.innerHTML+="🏆 倒した！";
 
 setTimeout(()=>{
-p.exp+=e.exp;
-p.gold+=e.exp;
-
-if(p.exp>=p.lv*100){
-p.exp=0;
-p.lv++;
-p.bp+=5;
-initialStats={...p.stats};
-showSub('point-ui');
-renderPoints();
-}else{
-showSub('menu-ui');
-}
-},2000);
-
-}else{
-log.innerHTML+="💀 負けた...";
-
-setTimeout(()=>{
-curHp=p.stats.hp*5;
-showSub('menu-ui');
+p.exp+=20;
+show("menu-ui");
 },2000);
 }
+},500);
 }
 
-function showSub(id){
-["start-ui","create-ui","job-ui","point-ui","menu-ui","battle-ui"]
-.forEach(i=>document.getElementById(i).classList.add('hidden'));
-
-document.getElementById(id).classList.remove('hidden');
+function save(){
+localStorage.setItem("mono_"+p.name,JSON.stringify(p));
+alert("セーブ");
 }
+
+/* util */
+function show(id){
+["start-ui","load-ui","create-ui","job-ui","menu-ui","battle-ui"]
+.forEach(i=>document.getElementById(i).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+}
+function val(id){return document.getElementById(id).value}
+function setHTML(id,v){document.getElementById(id).innerHTML=v}
 </script>
 
 </body>
