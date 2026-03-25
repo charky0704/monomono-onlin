@@ -1,1 +1,85 @@
 
+/* ===== 画面切り替え ===== */
+function show(id){
+["start","create","menu","battle"].forEach(i=>{
+document.getElementById(i).classList.add("hidden");
+});
+document.getElementById(id).classList.remove("hidden");
+}
+
+/* ===== キャラ作成画面へ ===== */
+function goCreate(){
+show("create");
+}
+
+/* ===== プレイヤー作成 ===== */
+function createPlayer(){
+
+const name = document.getElementById("name").value;
+const file = document.getElementById("img").files[0];
+
+if(!name){
+alert("名前必須");
+return;
+}
+
+if(!file){
+alert("見た目必須");
+return;
+}
+
+p = {
+name:name,
+img:URL.createObjectURL(file),
+lv:1,
+exp:0,
+hp:100,
+maxhp:100
+};
+
+saveGame();
+show("menu");
+updateUI();
+}
+
+/* ===== メニュー更新 ===== */
+function updateUI(){
+
+if(!p) return;
+
+document.getElementById("status").innerHTML =
+`${p.name}<br>Lv:${p.lv}<br>EXP:${p.exp}`;
+}
+
+/* ===== 探索 ===== */
+function explore(){
+
+if(!p) return;
+
+startBattle();
+}
+
+/* ===== セーブ ===== */
+function saveGame(){
+if(!p) return;
+localStorage.setItem("mono",JSON.stringify(p));
+}
+
+/* ===== ロード ===== */
+function loadGame(){
+
+p = JSON.parse(localStorage.getItem("mono"));
+
+if(!p){
+alert("データなし");
+return;
+}
+
+show("menu");
+updateUI();
+}
+
+/* ===== ログアウト ===== */
+function logout(){
+location.reload();
+}
