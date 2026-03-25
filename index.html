@@ -27,19 +27,17 @@
 
 <!-- メニュー -->
 <div id="menu" class="screen hidden">
-
 <h2>MENU</h2>
 
 <div id="status"></div>
 
 <button onclick="explore()">EXPLORE</button>
+<button onclick="startTower()">TOWER</button>
 <button onclick="saveGame()">SAVE</button>
 <button onclick="logout()">LOGOUT</button>
 
 </div>
 
-  <link rel="stylesheet" href="style.css">
-  
 <!-- 戦闘 -->
 <div id="battle" class="screen hidden">
 
@@ -64,11 +62,10 @@
 
 </div>
 
-</html>
-
-<button onclick="startTower()">TOWER</button>
-</body>
-<!-- JS読み込み（超重要順番） -->
+<!-- JS読み込み（最後！） -->
 <script src="data.js"></script>
 <script src="game.js"></script>
 <script src="battle.js"></script>
+
+</body>
+</html>
