@@ -1,90 +1,69 @@
-/* ===== 初期化 ===== */
 let towerFloor = 1;
 let maxTowerFloor = 5;
 
-/* ===== 敵データ（仮） ===== */
-const enemyTemplate = {
-    name: "SLIME",
-    hp: 50,
-    atk: 10,
-    exp: 30
-};
+const enemyTemplate = { name:"SLIME", hp:50, atk:10, exp:30 };
 
 /* ===== 戦闘開始 ===== */
 function startBattle(e = enemyTemplate){
-
     if(!p) return;
-
     inBattle = true;
-
     show("battle");
 
-    const enemy = {...e}; // コピーして使う
+    const enemy = {...e};
 
-    /* 表示セット */
-    document.getElementById("pimg").src = p.img;
-    document.getElementById("pname").innerText = p.name;
-    document.getElementById("ename").innerText = enemy.name;
+    const pimgEl = document.getElementById("pimg");
+    if(pimgEl) pimgEl.src = p.img;
+
+    const pnameEl = document.getElementById("pname");
+    if(pnameEl) pnameEl.innerText = p.name;
+
+    const enameEl = document.getElementById("ename");
+    if(enameEl) enameEl.innerText = enemy.name;
 
     let php = p.hp;
     let ehp = enemy.hp;
 
-    /* HPバー初期化 */
     updateHP(php, ehp, enemy.hp);
 
-    /* ログ初期化 */
-    document.getElementById("log").innerHTML = "";
+    const logEl = document.getElementById("log");
+    if(logEl) logEl.innerHTML = "";
+
     log("BATTLE START!");
 
-    /* 戦闘ループ */
     const loop = setInterval(()=>{
-
-        /* プレイヤー攻撃 */
         ehp -= 10;
-        log(p.name + " attack!");
+        log(`${p.name} attack!`);
 
-        /* 敵死亡 */
         if(ehp <= 0){
             clearInterval(loop);
             winBattle(enemy);
             return;
         }
 
-        /* 敵攻撃 */
         php -= enemy.atk;
         log("Enemy attack!");
 
-        /* プレイヤー死亡 */
         if(php <= 0){
             clearInterval(loop);
             loseBattle(enemy);
             return;
         }
 
-        /* HP更新 */
         updateHP(php, ehp, enemy.hp);
-
     },800);
 }
 
 /* ===== 勝利 ===== */
 function winBattle(enemy){
-
     inBattle = false;
-
     p.exp += enemy.exp;
 
-    /* 塔判定 */
     if(enemy.name.includes("TOWER")){
         towerFloor++;
         log("塔クリア！ " + towerFloor + "階へ");
-
-        if(towerFloor > maxTowerFloor){
-            maxTowerFloor = towerFloor;
-        }
+        if(towerFloor > maxTowerFloor) maxTowerFloor = towerFloor;
     }
 
-    /* レベルアップ */
     if(p.exp >= p.lv * 100){
         p.lv++;
         p.exp = 0;
@@ -101,10 +80,8 @@ function winBattle(enemy){
 
 /* ===== 敗北 ===== */
 function loseBattle(enemy){
-
     inBattle = false;
 
-    /* 塔判定 */
     if(enemy.name.includes("TOWER")){
         log("塔リタイア: " + towerFloor + "階");
         towerFloor = 1;
@@ -120,19 +97,19 @@ function loseBattle(enemy){
 
 /* ===== HP更新 ===== */
 function updateHP(php, ehp, emax){
+    const phpEl = document.getElementById("php");
+    const ehpEl = document.getElementById("ehp");
 
-    document.getElementById("php").style.width =
-        (php / p.maxhp) * 100 + "%";
-
-    document.getElementById("ehp").style.width =
-        (ehp / emax) * 100 + "%";
+    if(phpEl) phpEl.style.width = (php/p.maxhp)*100 + "%";
+    if(ehpEl) ehpEl.style.width = (ehp/emax)*100 + "%";
 
     p.hp = php;
 }
 
 /* ===== ログ ===== */
 function log(text){
-    document.getElementById("log").innerHTML += text + "<br>";
+    const logEl = document.getElementById("log");
+    if(logEl) logEl.innerHTML += text + "<br>";
 }
 
 /* ===== グローバル公開 ===== */
