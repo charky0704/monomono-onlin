@@ -24,8 +24,11 @@ justify-content:center;
 align-items:center;
 }
 
-.hidden{
-display:none;
+.screen:not(.hidden) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ===== ボタン ===== */
