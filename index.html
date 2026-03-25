@@ -1,38 +1,45 @@
-「自分でダウンロードして、特定のファイル名で保存してもらう」という仕組みですね。昔ながらのCGIゲーム（配布物）のようなスタイルで、非常に拡張性が高いです。
-
-この場合、プログラム側では**「決まったファイル名」を参照するように設定**しておき、ユーザーにその名前で画像を置いておいてもらう形になります。
-
-以下に、外部画像（静止画）を読み込むための修正版コードをまとめました。
-
-1. 修正後のHTML/JavaScript構成
-画像ファイル名は、管理しやすいように player_1.png （戦士）、player_2.png （魔導士）のようにルール化しておくとスムーズです。
-
-HTML
-<div>職業: 
-    <button onclick="setBody('player_warrior.png')">戦士</button>
-    <button onclick="setBody('player_mage.png')">魔導士</button>
-    <button onclick="setBody('player_ninja.png')">忍者</button>
+<div class="maker">
+    <div>名前: <input type="text" id="name-input" value="ユウシャ" oninput="updateName()"></div>
+    <div>画像を選択: 
+        <input type="file" id="char-upload" accept="image/*" onchange="loadCharacter(event)">
+    </div>
+    <div style="font-size: 10px; color: #ccc;">※背景が透明なPNG画像を推奨</div>
 </div>
 
 <div id="player-view" class="char-preview">
     <div id="aura-part" class="part" style="font-size: 80px; opacity: 0.5;"></div>
     <div id="body-part" class="part">
-        <img src="player_warrior.png" id="p-img" class="pixel-img">
-    </div>
+        <img id="player-img" src="" style="display:none;" class="pixel-img">
+        <span id="default-icon">⚔️</span> </div>
 </div>
 
+<style>
+    /* ドット絵をくっきりさせるCSS設定 */
+    .pixel-img {
+        width: 80px;  /* お好みのサイズに */
+        height: auto;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+    }
+</style>
+
 <script>
-    // 職業（画像）を切り替える関数
-    function setBody(imgSrc) {
-        const imgTag = document.getElementById('p-img');
-        imgTag.src = imgSrc; // 画像のパスを書き換える
-        
-        // 画像読み込みエラー対策（ファイルがない場合）
-        imgTag.onerror = function() {
-            this.src = ""; // 画像がない時は非表示にするか、代替画像を出す
-            console.error("画像ファイルが見つかりません: " + imgSrc);
+    function loadCharacter(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imgEl = document.getElementById('player-img');
+            const defaultIcon = document.getElementById('default-icon');
+
+            // 読み込んだ画像をsrcにセット
+            imgEl.src = e.target.result;
+            imgEl.style.display = "block"; // 画像を表示
+            defaultIcon.style.display = "none"; // 絵文字を隠す
+            
+            document.getElementById('log').innerText = "新しい姿になった！";
         };
-        
-        document.getElementById('log').innerText = "装備（画像）を変更した！";
+        reader.readAsDataURL(file);
     }
 </script>
