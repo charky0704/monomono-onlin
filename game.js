@@ -1,59 +1,66 @@
-/* ===== 軽量戦闘用設定 ===== */
+let p = null;
+let floor = 1;
+let explore = 0;
+let maxExplore = 5;
 let inBattle = false;
-const enemyList = [
-  {name:"SLIME", hp:30, atk:5, exp:10},
-  {name:"GOBLIN", hp:50, atk:10, exp:20}
-];
 
-/* ===== 探索（簡易戦闘付き） ===== */
-function exploreArea(){
-    if(!p) return;
-    if(inBattle) return alert("戦闘中は探索できません");
-
-    explore++;
-    if(explore > maxExplore) explore = maxExplore;
-
-    // ランダムで敵と遭遇
-    const encounter = Math.random() < 0.5; // 50%で遭遇
-    if(encounter){
-        const enemy = enemyList[Math.floor(Math.random()*enemyList.length)];
-        startBattle(enemy);
-    } else {
-        alert(`${p.name}は安全に探索した！ 探索進捗: ${explore}/${maxExplore}`);
-    }
-
-    updateUI();
+function show(id){
+  ["start","create","menu","battle"].forEach(i=>{
+    document.getElementById(i).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
 }
 
-/* ===== 簡易戦闘 ===== */
-function startBattle(enemy){
-    inBattle = true;
-    let php = p.hp;
-    let ehp = enemy.hp;
-    let logText = "";
+function goCreate(){ show("create"); }
 
-    while(php > 0 && ehp > 0){
-        ehp -= 10; // プレイヤー攻撃
-        logText += `${p.name} attack! ${enemy.name}は${ehp>0?ehp:0}HP\n`;
-        if(ehp <=0) break;
+function createPlayer(){
+  const name = document.getElementById("name").value;
+  const file = document.getElementById("img").files[0];
+  if(!name){ alert("名前は必須です"); return; }
+  if(!file){ alert("見た目は必須です"); return; }
 
-        php -= enemy.atk; // 敵攻撃
-        logText += `${enemy.name} attack! ${p.name}は${php>0?php:0}HP\n`;
-    }
+  p = {
+    name:name,
+    img:URL.createObjectURL(file),
+    lv:1,
+    exp:0,
+    hp:100,
+    maxhp:100
+  };
 
-    p.hp = php>0?php:0;
-    inBattle = false;
-
-    if(p.hp <=0){
-        alert(logText + "敗北...\nHPを全回復");
-        p.hp = p.maxhp;
-    } else {
-        p.exp += enemy.exp;
-        alert(logText + "勝利!\nEXP+" + enemy.exp);
-    }
-
-    updateUI();
+  saveGame();
+  show("menu");
+  updateUI();
 }
 
-/* ===== グローバル公開 ===== */
+function updateUI(){
+  if(!p) return;
+  document.getElementById("pname-status").textContent = p.name;
+  document.getElementById("plv-status").textContent = p.lv;
+  document.getElementById("php-status").textContent = `${p.hp} / ${p.maxhp}`;
+  document.getElementById("pexp-status").textContent = p.exp;
+}
+
+function exploreArea(){ alert("探索イベント！"); }
+
+function saveGame(){ if(!p) return; localStorage.setItem("mono", JSON.stringify(p)); }
+
+function loadGame(){
+  p = JSON.parse(localStorage.getItem("mono"));
+  if(!p){ alert("データなし"); return; }
+  show("menu");
+  updateUI();
+}
+
+function logout(){ location.reload(); }
+
+function startTower(){ alert("塔は未実装"); }
+
+// グローバル公開
+window.goCreate = goCreate;
+window.createPlayer = createPlayer;
+window.loadGame = loadGame;
 window.exploreArea = exploreArea;
+window.saveGame = saveGame;
+window.logout = logout;
+window.startTower = startTower;
