@@ -64,3 +64,5 @@ window.exploreArea = exploreArea;
 window.saveGame = saveGame;
 window.logout = logout;
 window.startTower = startTower;
+<script src="game.js"></script>
+<script src="battle.js"></script>
