@@ -124,3 +124,11 @@ alert("次の階層へ！");
 show("menu");
 updateUI();
 }
+
+window.goCreate = goCreate;
+window.createPlayer = createPlayer;
+window.loadGame = loadGame;
+window.explore = explore;
+window.saveGame = saveGame;
+window.logout = logout;
+window.startTower = startTower;
