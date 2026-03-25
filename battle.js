@@ -91,14 +91,14 @@ function loseBattle(){
 
 inBattle = false;
 
-log("YOU LOSE!");
+log("敗北...");
 
 p.hp = p.maxhp;
 
 setTimeout(()=>{
 show("menu");
 updateUI();
-},1500);
+},1200);
 }
 
 /* ===== HP更新 ===== */
