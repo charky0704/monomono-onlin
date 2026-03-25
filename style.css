@@ -17,7 +17,7 @@ pointer-events:none;
 /* ===== 画面 ===== */
 /* 画面を隠すクラス */
 .hidden {
-  display: none !important;
+  display: none;
 }
 
 /* .screen は基本 flex レイアウト */
