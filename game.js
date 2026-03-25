@@ -30,6 +30,7 @@ function createPlayer(){
   saveGame();
   show("menu");
   updateUI();
+  alert("キャラ作成完了！"); // 確認用
 }
 
 function updateUI(){
