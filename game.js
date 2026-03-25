@@ -24,15 +24,8 @@ function createPlayer(){
     const name = document.getElementById("name")?.value;
     const file = document.getElementById("img")?.files[0];
 
-    if(!name){
-        alert("名前必須");
-        return;
-    }
-
-    if(!file){
-        alert("見た目必須");
-        return;
-    }
+    if(!name){ alert("名前必須"); return; }
+    if(!file){ alert("見た目必須"); return; }
 
     p = {
         name:name,
@@ -50,34 +43,30 @@ function createPlayer(){
 
 /* ===== メニュー更新 ===== */
 function updateUI(){
-  if(!p) return;
-  const nameEl = document.getElementById("pname-status");
-  const lvEl = document.getElementById("plv-status");
-  const hpEl = document.getElementById("php-status");
-  const expEl = document.getElementById("pexp-status");
+    if(!p) return;
+    const nameEl = document.getElementById("pname-status");
+    const lvEl = document.getElementById("plv-status");
+    const hpEl = document.getElementById("php-status");
+    const expEl = document.getElementById("pexp-status");
 
-  if(nameEl) nameEl.textContent = p.name;
-  if(lvEl) lvEl.textContent = p.lv;
-  if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
-  if(expEl) expEl.textContent = p.exp;
-
-  const statusEl = document.getElementById("status");
-  if(statusEl){
-      statusEl.innerHTML = 
-      `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
-  } else {
-      console.warn("status要素が見つかりません");
-  }
-}
-/* ===== 探索 ===== */
-function exploreArea(){
-    show("menu");
+    if(nameEl) nameEl.textContent = p.name;
+    if(lvEl) lvEl.textContent = p.lv;
+    if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
+    if(expEl) expEl.textContent = p.exp;
 
     const statusEl = document.getElementById("status");
     if(statusEl){
-        statusEl.innerHTML =
-        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>探索:${explore}/${maxExplore}`;
+        statusEl.innerHTML = 
+        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
+    } else {
+        console.warn("status要素が見つかりません");
     }
+}
+
+/* ===== 探索 ===== */
+function exploreArea(){
+    show("menu");
+    updateUI();
 }
 
 /* ===== セーブ ===== */
@@ -89,11 +78,7 @@ function saveGame(){
 /* ===== ロード ===== */
 function loadGame(){
     p = JSON.parse(localStorage.getItem("mono"));
-
-    if(!p){
-        alert("データなし");
-        return;
-    }
+    if(!p){ alert("データなし"); return; }
 
     if(typeof floor === "undefined") floor = 1;
     if(typeof explore === "undefined") explore = 0;
@@ -105,9 +90,7 @@ function loadGame(){
 }
 
 /* ===== ログアウト ===== */
-function logout(){
-    location.reload();
-}
+function logout(){ location.reload(); }
 
 /* ===== ボスクリア後 ===== */
 function clearBoss(){
@@ -119,9 +102,7 @@ function clearBoss(){
 }
 
 /* ===== ダミー関数 ===== */
-function startTower(){
-    alert("塔機能は未実装です");
-}
+function startTower(){ alert("塔機能は未実装です"); }
 
 /* ===== グローバル公開 ===== */
 window.goCreate = goCreate;
