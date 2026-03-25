@@ -1,176 +1,38 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<title>MONOMONO ONLINE - COMPLETE</title>
+<div class="game-container">
 
-<style>
-:root { 
-    --accent: #00aaff; 
-    --hp: #ff0055;
-}
+  <!-- 左：ステータス -->
+  <div class="panel side-panel" style="flex:1">
+    <h3>ステータス</h3>
+    <div id="status-area"></div>
+  </div>
 
-/* 🌤 空 */
-body { 
-    background: linear-gradient(to bottom, #87cefa, #e0f7ff);
-    font-family: sans-serif;
-    margin:0;
-    display:flex;
-    justify-content:center;
-}
+  <!-- 右：行動 -->
+  <div class="panel main-panel" style="flex:2">
+    <h3>行動メニュー</h3>
 
-.panel{background:#fff;padding:20px;border-radius:10px;width:400px}
+    <div class="menu-grid">
 
-.btn{width:100%;padding:10px;margin:5px;border:1px solid #00aaff;cursor:pointer}
-.hidden{display:none}
-#battle-log{height:150px;overflow:auto;background:#eee;padding:10px}
-</style>
-</head>
+      <div class="menu-group">
+        <h4>🏙 街</h4>
+        <button class="btn">倉庫</button>
+        <button class="btn">合成</button>
+        <button class="btn">市場</button>
+      </div>
 
-<body>
+      <div class="menu-group">
+        <h4>⚔️ 戦闘</h4>
+        <button class="btn" onclick="encount()">探索</button>
+        <button class="btn">ランダム戦</button>
+        <button class="btn">塔</button>
+      </div>
 
-<div class="panel">
+      <div class="menu-group">
+        <h4>🧪 成長</h4>
+        <button class="btn">転職</button>
+        <button class="btn">ステ振り</button>
+      </div>
 
-<!-- タイトル -->
-<div id="start-ui">
-<h2>MONOMONO ONLINE</h2>
-<button class="btn" onclick="newGame()">新規作成</button>
-<button class="btn" onclick="loadList()">続きから</button>
-</div>
-
-<!-- セーブ一覧 -->
-<div id="load-ui" class="hidden"></div>
-
-<!-- 作成 -->
-<div id="create-ui" class="hidden">
-<input id="name" placeholder="名前">
-<input type="file" id="img">
-<button class="btn" onclick="create()">作成</button>
-</div>
-
-<!-- 職業 -->
-<div id="job-ui" class="hidden"></div>
-
-<!-- メニュー -->
-<div id="menu-ui" class="hidden">
-<div id="player"></div>
-<button class="btn" onclick="battle()">戦闘</button>
-<button class="btn" onclick="save()">セーブ</button>
-</div>
-
-<!-- 戦闘 -->
-<div id="battle-ui" class="hidden">
-<div id="battle-log"></div>
-</div>
+    </div>
+  </div>
 
 </div>
-
-<script>
-const JOBS={
-剣士:{hp:15,atk:15,def:10},
-盾:{hp:30,atk:5,def:20},
-弓:{hp:10,atk:12,crit:0.3},
-魔:{hp:8,matk:20,magic:true}
-};
-
-let p=null,curHp=0,imgData="";
-
-function newGame(){
-show("create-ui");
-}
-
-function loadList(){
-let html="";
-for(let i=0;i<localStorage.length;i++){
-let k=localStorage.key(i);
-if(k.startsWith("mono")){
-let d=JSON.parse(localStorage.getItem(k));
-html+=`
-<button class="btn" onclick="load('${k}')">${d.name}</button>
-<button onclick="del('${k}')">削除</button>`;
-}
-}
-setHTML("load-ui",html);
-show("load-ui");
-}
-
-function del(k){
-localStorage.removeItem(k);
-loadList();
-}
-
-function load(k){
-p=JSON.parse(localStorage.getItem(k));
-curHp=p.hp;
-show("menu-ui");
-render();
-}
-
-document.getElementById("img").onchange=e=>{
-let r=new FileReader();
-r.onload=v=>imgData=v.target.result;
-r.readAsDataURL(e.target.files[0]);
-};
-
-function create(){
-p={name:val("name"),lv:1,exp:0,gold:0};
-show("job-ui");
-
-setHTML("job-ui",
-Object.keys(JOBS).map(j=>
-`<button class="btn" onclick="job('${j}')">${j}</button>`
-).join(""));
-}
-
-function job(j){
-Object.assign(p,JOBS[j]);
-curHp=p.hp*5;
-show("menu-ui");
-render();
-}
-
-function render(){
-setHTML("player",
-`<img src="${imgData}" width="50"><br>
-${p.name} Lv${p.lv}`);
-}
-
-function battle(){
-show("battle-ui");
-let log=document.getElementById("battle-log");
-log.innerHTML="敵出現<br>";
-let hp=30;
-
-let loop=setInterval(()=>{
-hp-=p.atk||p.matk;
-log.innerHTML+="攻撃<br>";
-
-if(hp<=0){
-clearInterval(loop);
-log.innerHTML+="🏆 倒した！";
-
-setTimeout(()=>{
-p.exp+=20;
-show("menu-ui");
-},2000);
-}
-},500);
-}
-
-function save(){
-localStorage.setItem("mono_"+p.name,JSON.stringify(p));
-alert("セーブ");
-}
-
-/* util */
-function show(id){
-["start-ui","load-ui","create-ui","job-ui","menu-ui","battle-ui"]
-.forEach(i=>document.getElementById(i).classList.add("hidden"));
-document.getElementById(id).classList.remove("hidden");
-}
-function val(id){return document.getElementById(id).value}
-function setHTML(id,v){document.getElementById(id).innerHTML=v}
-</script>
-
-</body>
-</html>
