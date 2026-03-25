@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>MONOMONO ONLINE</title>
-<link rel="stylesheet" href="style.css">
+<style>
+.screen { display: none; }
+.screen:not(.hidden) { display: block; }
+button { padding: 6px 12px; margin: 2px; }
+.unit { display: inline-block; margin: 10px; }
+.bar { width: 80px; height: 10px; background: #ccc; margin-top: 4px; }
+.hp { height: 100%; background: red; width: 100%; }
+</style>
 </head>
 
 <body>
@@ -11,74 +18,43 @@
 <!-- START画面 -->
 <div id="start" class="screen">
 <h1>MONOMONO ONLINE</h1>
-<button onclick="alert('押せてるよ'); goCreate();">NEW GAME</button>
+<button onclick="goCreate()">NEW GAME</button>
 <button onclick="loadGame()">CONTINUE</button>
 </div>
 
 <!-- キャラ作成 -->
 <div id="create" class="screen hidden">
 <h2>CREATE CHARACTER</h2>
-
 <input id="name" placeholder="NAME"><br><br>
 <input type="file" id="img"><br><br>
-
 <button onclick="createPlayer()">START</button>
 </div>
 
 <!-- メニュー -->
 <div id="menu" class="screen hidden" style="display: flex; gap: 20px; padding: 10px;">
-
-  <!-- ステータス左カラム -->
-  <section style="flex: 1; background: #f0f0f0; padding: 10px; border-radius: 6px;">
+  <!-- ステータス -->
+  <section style="flex:1; background:#f0f0f0; padding:10px; border-radius:6px;">
     <h2>ステータス</h2>
-    <table style="width: 100%; border-collapse: collapse;">
-      <tr><th style="text-align:left; padding: 4px;">名前</th><td id="pname-status" style="padding: 4px;"></td></tr>
-      <tr><th style="text-align:left; padding: 4px;">レベル</th><td id="plv-status" style="padding: 4px;"></td></tr>
-      <tr><th style="text-align:left; padding: 4px;">HP</th><td id="php-status" style="padding: 4px;"></td></tr>
-      <tr><th style="text-align:left; padding: 4px;">EXP</th><td id="pexp-status" style="padding: 4px;"></td></tr>
-      <!-- 追加のステータス欄はここに入れてください -->
+    <table style="width:100%; border-collapse:collapse;">
+      <tr><th style="text-align:left; padding:4px;">名前</th><td id="pname-status"></td></tr>
+      <tr><th style="text-align:left; padding:4px;">レベル</th><td id="plv-status"></td></tr>
+      <tr><th style="text-align:left; padding:4px;">HP</th><td id="php-status"></td></tr>
+      <tr><th style="text-align:left; padding:4px;">EXP</th><td id="pexp-status"></td></tr>
     </table>
   </section>
 
-  <!-- 行動メニュー右カラム -->
-  <section style="flex: 1; background: #e5e5e5; padding: 10px; border-radius: 6px;">
+  <!-- 行動メニュー -->
+  <section style="flex:1; background:#e5e5e5; padding:10px; border-radius:6px;">
     <h2>行動メニュー</h2>
-    <button onclick="explore()">探索する</button><br><br>
+    <button onclick="exploreArea()">探索する</button><br><br>
     <button onclick="startTower()">塔に挑戦</button><br><br>
     <button onclick="saveGame()">セーブ</button><br><br>
     <button onclick="logout()">ログアウト</button>
   </section>
-
 </div>
 
-<!-- 戦闘 -->
-<div id="battle" class="screen hidden">
-
-<div id="battleTop">
-
-<div class="unit">
-<img id="pimg" width="80">
-<div id="pname"></div>
-<div class="bar"><div id="php" class="hp"></div></div>
-</div>
-
-<div class="vs">VS</div>
-
-<div class="unit">
-<div id="ename"></div>
-<div class="bar"><div id="ehp" class="hp"></div></div>
-</div>
-
-</div>
-
-<div id="log"></div>
-
-</div>
-
-<!-- JS読み込み（最後！） -->
-<script src="data.js"></script>
+<!-- JS読み込み -->
 <script src="game.js"></script>
-<script src="battle.js"></script>
 
 </body>
 </html>
