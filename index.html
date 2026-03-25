@@ -2,17 +2,19 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MONOMONO ONLINE - Ver.8.6 Sign-In Update</title>
+    <title>MONOMONO ONLINE - Ver.8.7 Data Manager</title>
     <style>
-        :root { --main-bg: #1a1a2e; --panel: rgba(20,20,40,0.95); --accent: #ffce00; --xp-color: #2ecc71; }
+        :root { --main-bg: #1a1a2e; --panel: rgba(20,20,40,0.95); --accent: #ffce00; --xp-color: #2ecc71; --danger: #ff4757; }
         body { background: var(--main-bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .game-container { display: flex; width: 100%; max-width: 1100px; gap: 15px; height: 95vh; }
         .side-panel, .main-panel { background: var(--panel); border: 2px solid #333; border-radius: 15px; padding: 15px; overflow-y: auto; }
         .side-panel { flex: 1; min-width: 280px; border-color: var(--accent); }
         .main-panel { flex: 2; position: relative; text-align: center; }
         .btn { width: 100%; padding: 12px; margin: 8px 0; background: #333; color: white; border: 1px solid #555; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background: #555; transform: scale(1.02); }
+        .btn:hover { background: #444; transform: scale(1.01); }
         .btn-accent { background: var(--accent); color: black; border: none; }
+        .btn-del { width: 50px; background: var(--danger); border: none; margin-left: 10px; font-size: 12px; }
+        .user-row { display: flex; align-items: center; margin-bottom: 5px; }
         .bar-bg { width: 100%; height: 10px; background: #300; border-radius: 5px; overflow: hidden; border: 1px solid #777; margin: 4px 0; }
         .hp-fill { height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); width: 100%; transition: 0.3s; }
         .xp-fill { height: 100%; background: var(--xp-color); width: 0%; }
@@ -41,20 +43,16 @@
     <div class="main-panel">
         <div id="start-ui">
             <h1>🌍 MONOMONO ONLINE</h1>
-            <p>デバイスに保存されたデータで遊ぶか、新しく作成します</p>
             <button class="btn btn-accent" onclick="showSub('create-ui')">✨ 新しく冒険を始める</button>
             <button class="btn" onclick="openSignIn()">🔑 サインイン (続きから)</button>
         </div>
 
         <div id="create-ui" class="hidden">
             <h2>新規キャラクター作成</h2>
-            <input type="text" id="new-name" placeholder="名前を入力してください" style="width:80%; padding:10px; margin-bottom:10px;">
-            <div style="margin-bottom:10px;">
-                <label>アバター画像選択：</label>
-                <input type="file" id="img-upload">
-            </div>
-            <button class="btn btn-accent" onclick="createNewChar()">作成して職業選択へ</button>
-            <button class="btn" onclick="showSub('start-ui')">キャンセル</button>
+            <input type="text" id="new-name" placeholder="名前を入力" style="width:80%; padding:10px; margin-bottom:10px;">
+            <input type="file" id="img-upload" style="margin-bottom:10px;">
+            <button class="btn btn-accent" onclick="createNewChar()">作成</button>
+            <button class="btn" onclick="showSub('start-ui')">戻る</button>
         </div>
 
         <div id="signin-ui" class="hidden">
@@ -64,11 +62,11 @@
         </div>
 
         <div id="job-ui" class="hidden"><h3>職業選択</h3><div id="job-btns"></div></div>
-        <div id="point-ui" class="hidden"><h3>能力強化 (BP:<span id="bp-val">0</span>)</h3><div id="point-config"></div><button class="btn btn-accent" onclick="saveAndGoMenu()">確定</button></div>
+        <div id="point-ui" class="hidden"><h3>能力強化</h3><div id="point-config"></div><button class="btn btn-accent" onclick="saveAndGoMenu()">確定</button></div>
         
         <div id="menu-ui" class="hidden">
             <h2 id="floor-tag">第1階層</h2>
-            <div id="boss-button-area" class="hidden"><button class="btn" style="background:red;" onclick="startBossBattle()">👹 階層ボスに挑む！</button></div>
+            <div id="boss-button-area" class="hidden"><button class="btn" style="background:red;" onclick="startBossBattle()">👹 ボスに挑む！</button></div>
             <button class="btn" onclick="showSub('area-ui')">⚔ エリア探索</button>
             <button class="btn" onclick="showSub('tower-ui')">🗼 試練の塔</button>
             <button class="btn" onclick="logout()">タイトルに戻る</button>
@@ -77,13 +75,7 @@
         <div id="battle-ui" class="hidden">
             <h3 id="battle-header">BATTLE</h3>
             <div style="display:flex; justify-content:space-around; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;">
-                <div id="p-battle-img"></div>
-                <div>VS</div>
-                <div style="text-align:center;">
-                    <div id="e-icon" style="font-size:40px;">👿</div>
-                    <div class="bar-bg" style="width:80px;"><div id="e-b-hp" class="hp-fill"></div></div>
-                    <div id="e-name-disp" style="font-size:10px;">敵</div>
-                </div>
+                <div id="p-battle-img"></div><div>VS</div><div style="text-align:center;"><div id="e-icon" style="font-size:40px;">👿</div><div class="bar-bg" style="width:80px;"><div id="e-b-hp" class="hp-fill"></div></div><div id="e-name-disp" style="font-size:10px;">敵</div></div>
             </div>
             <div id="battle-log"></div>
         </div>
@@ -100,7 +92,7 @@ const WORLD_AREAS = [{name:"草原",icon:"🌱",monsters:[{n:"スライム",i:"�
 
 let p = null, curHp = 0, tempImg = "👤", bLoop = null;
 
-// --- サインイン・新規作成ロジック ---
+// --- サインイン・削除ロジック ---
 function openSignIn() {
     const listDiv = document.getElementById('user-list');
     listDiv.innerHTML = "";
@@ -109,35 +101,48 @@ function openSignIn() {
         const key = localStorage.key(i);
         if (key.startsWith("mono_v8_save_")) {
             const data = JSON.parse(localStorage.getItem(key));
-            const btn = document.createElement('button');
-            btn.className = "btn";
-            btn.innerHTML = `<img src="${data.img}" style="width:20px; vertical-align:middle;"> ${data.name} (Lv.${data.lv})`;
-            btn.onclick = () => login(data.name);
-            listDiv.appendChild(btn);
+            const row = document.createElement('div');
+            row.className = "user-row";
+            
+            const mainBtn = document.createElement('button');
+            mainBtn.className = "btn";
+            mainBtn.style.margin = "0";
+            mainBtn.innerHTML = `<img src="${data.img}" style="width:20px; vertical-align:middle;"> ${data.name} (Lv.${data.lv})`;
+            mainBtn.onclick = () => login(data.name);
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = "btn btn-del";
+            delBtn.innerText = "消去";
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if(confirm(`${data.name} のデータを完全に消去しますか？`)) {
+                    localStorage.removeItem(key);
+                    openSignIn(); // 再描画
+                }
+            };
+            
+            row.appendChild(mainBtn);
+            row.appendChild(delBtn);
+            listDiv.appendChild(row);
             found = true;
         }
     }
-    if (!found) listDiv.innerHTML = "<p>保存されたデータがありません</p>";
+    if (!found) listDiv.innerHTML = "<p>保存データがありません</p>";
     showSub('signin-ui');
 }
 
+// キャラ作成
 function createNewChar() {
     const name = document.getElementById('new-name').value;
-    if (!name) return alert("名前を入力してください");
-    if (localStorage.getItem("mono_v8_save_" + name)) return alert("その名前は既に存在します");
-    if (tempImg === "👤") return alert("画像を選択してください");
-
-    p = { name: name, job: "", lv: 1, exp: 0, gold: 0, bp: 15, stats: {}, floor: 1, explore: 0, tower: 0, img: tempImg, friends: [], fCode: "MONO-" + Math.floor(Math.random() * 999999) };
-    
+    if (!name) return alert("名前を入力！");
+    if (localStorage.getItem("mono_v8_save_" + name)) return alert("その名前は使われています");
+    if (tempImg === "👤") return alert("画像を選んで！");
+    p = { name:name, job:"", lv:1, exp:0, gold:0, bp:15, stats:{}, floor:1, explore:0, tower:0, img:tempImg, friends:[], fCode: "MONO-"+Math.floor(Math.random()*999999) };
     showSub('job-ui');
     document.getElementById('job-btns').innerHTML = Object.keys(JOB_DATA).map(j => `<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
 }
 
-function login(name) {
-    p = JSON.parse(localStorage.getItem("mono_v8_save_" + name));
-    completeLoad();
-}
-
+function login(name) { p = JSON.parse(localStorage.getItem("mono_v8_save_" + name)); completeLoad(); }
 function logout() { location.reload(); }
 
 // --- ゲームエンジン ---
@@ -147,15 +152,8 @@ function renderPoints() {
     document.getElementById('bp-val').innerText = p.bp;
 }
 function adjStat(k) { if(p.bp > 0) { p.stats[k]++; p.bp--; renderPoints(); } }
-
-function completeLoad() {
-    curHp = p.stats.hp * 5;
-    document.getElementById('side-info').classList.remove('hidden');
-    updateUI();
-    showSub('menu-ui');
-}
-
-function save() { localStorage.setItem("mono_v8_save_" + p.name, JSON.stringify(p)); }
+function completeLoad() { curHp = p.stats.hp * 5; document.getElementById('side-info').classList.remove('hidden'); updateUI(); showSub('menu-ui'); }
+function save() { if(p) localStorage.setItem("mono_v8_save_" + p.name, JSON.stringify(p)); }
 function saveAndGoMenu() { save(); completeLoad(); }
 
 function updateUI() {
@@ -177,12 +175,11 @@ function startBattle(e, type="normal") {
     showSub('battle-ui');
     document.getElementById('e-b-hp').style.width = "100%";
     const log = document.getElementById('battle-log');
-    log.innerHTML = `<div><b>${e.en}</b> が現れた！</div>`;
+    log.innerHTML = `<div><b>${e.en}</b> 出現！</div>`;
     let mE = e.hp, cE = e.hp;
     document.getElementById('p-battle-img').innerHTML = `<img src="${p.img}" class="pixel-img">`;
     document.getElementById('e-icon').innerText = e.i;
     document.getElementById('e-name-disp').innerText = e.en;
-
     bLoop = setInterval(() => {
         let dmg = Math.max(1, (p.stats.magic?p.stats.matk:p.stats.atk));
         cE -= dmg; log.innerHTML += `<div>⚔ ${p.name}: ${dmg}ダメ</div>`;
@@ -220,7 +217,6 @@ function showSub(id) {
 function renderAreaList() {
     document.getElementById('area-list').innerHTML = `<button class="btn" onclick="encount()">草原を探索</button>`;
 }
-
 document.getElementById('img-upload').onchange = (e) => {
     const r = new FileReader(); r.onload = (ev) => { tempImg = ev.target.result; }; r.readAsDataURL(e.target.files[0]);
 };
