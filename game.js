@@ -10,7 +10,6 @@ function show(id){
 }
 
 function goCreate(){
-  alert("goCreate が呼ばれた！");
   show("create");
 }
 
