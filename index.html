@@ -2,276 +2,227 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>MONOMONO ONLINE - Ver.8.5 Fix</title>
+    <title>MONOMONO ONLINE - Ver.8.6 Sign-In Update</title>
     <style>
         :root { --main-bg: #1a1a2e; --panel: rgba(20,20,40,0.95); --accent: #ffce00; --xp-color: #2ecc71; }
         body { background: var(--main-bg); color: white; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .game-container { display: flex; width: 100%; max-width: 1100px; gap: 15px; height: 95vh; }
         .side-panel, .main-panel { background: var(--panel); border: 2px solid #333; border-radius: 15px; padding: 15px; overflow-y: auto; }
         .side-panel { flex: 1; min-width: 280px; border-color: var(--accent); }
-        .main-panel { flex: 2; position: relative; }
-        .btn { width: 100%; padding: 12px; margin: 5px 0; background: #333; color: white; border: 1px solid #555; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: center;}
-        .btn:hover:not(:disabled) { background: #555; transform: scale(1.02); }
-        .btn-boss { background: linear-gradient(45deg, #800, #e22); border: 2px solid #ffce00; }
+        .main-panel { flex: 2; position: relative; text-align: center; }
+        .btn { width: 100%; padding: 12px; margin: 8px 0; background: #333; color: white; border: 1px solid #555; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn:hover { background: #555; transform: scale(1.02); }
+        .btn-accent { background: var(--accent); color: black; border: none; }
         .bar-bg { width: 100%; height: 10px; background: #300; border-radius: 5px; overflow: hidden; border: 1px solid #777; margin: 4px 0; }
         .hp-fill { height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); width: 100%; transition: 0.3s; }
-        .xp-fill { height: 100%; background: var(--xp-color); width: 0%; transition: 0.5s; }
-        .ex-fill { height: 100%; background: #3498db; width: 0%; transition: 0.5s; }
-        #battle-log { height: 160px; background: #000; padding: 10px; font-size: 13px; overflow-y: auto; border-radius: 10px; border: 1px solid #444; margin-top:10px; display: flex; flex-direction: column-reverse; }
+        .xp-fill { height: 100%; background: var(--xp-color); width: 0%; }
         .hidden { display: none !important; }
         .pixel-img { width: 80px; height: 80px; object-fit: contain; image-rendering: pixelated; border: 2px solid var(--accent); background: #000; border-radius: 10px; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 11px; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; }
+        #battle-log { height: 160px; background: #000; padding: 10px; font-size: 13px; overflow-y: auto; border-radius: 10px; border: 1px solid #444; margin-top:10px; display: flex; flex-direction: column-reverse; text-align: left; }
     </style>
 </head>
 <body>
 
 <div class="game-container">
-    <div class="side-panel">
-        <div id="side-img-view" style="text-align:center; height:84px;">👤</div>
-        <div id="disp-name" style="text-align:center; font-size:18px; font-weight:bold; margin-top:5px;">ゲスト</div>
-        <div id="disp-level" style="text-align:center; font-size:12px; color:var(--accent);">Lv.-- 職業</div>
-        <div style="margin-top:10px; border-top:1px solid #333;">
-            <div style="font-size:10px; margin-top:5px;">HP <span id="hp-text">--/--</span></div>
+    <div id="side-info" class="side-panel hidden">
+        <div id="side-img-view" style="text-align:center;">👤</div>
+        <div id="disp-name" style="font-size:18px; font-weight:bold; margin-top:5px;">--</div>
+        <div id="disp-level" style="font-size:12px; color:var(--accent);">--</div>
+        <div style="margin-top:10px;">
+            <div style="font-size:10px;">HP <span id="hp-text">--/--</span></div>
             <div class="bar-bg"><div id="p-hp-bar" class="hp-fill"></div></div>
             <div style="font-size:10px;">EXP <span id="xp-text">--</span></div>
             <div class="bar-bg"><div id="p-xp-bar" class="xp-fill"></div></div>
-            <div style="font-size:10px;">AREA PROGRESS <span id="ex-text">0%</span></div>
-            <div class="bar-bg"><div id="p-ex-bar" class="ex-fill"></div></div>
         </div>
-        <div id="stat-list" class="stat-grid" style="margin-top:10px;"></div>
-        <div id="gold-disp" style="text-align:center; color:#f1c40f; font-size:18px; font-weight:bold; margin-top:10px;">0 G</div>
-        <hr style="opacity:0.2;">
-        <div style="font-size:11px; color:#aaa;">👥 フレンド</div>
-        <div id="friend-list-ui" style="font-size:11px; max-height:60px; overflow-y:auto;">なし</div>
+        <div id="stat-list" style="font-size:11px; margin-top:10px; display:grid; grid-template-columns:1fr 1fr;"></div>
+        <div id="gold-disp" style="color:#f1c40f; font-weight:bold; margin-top:10px;">0 G</div>
     </div>
 
     <div class="main-panel">
-        <div id="login-ui">
-            <h2>🌍 MONOMONO ONLINE</h2>
-            <div id="auto-loading-msg" class="hidden" style="text-align:center; padding:20px;">ロード中...</div>
-            <div id="login-form">
-                <input type="text" id="login-id" placeholder="冒険者の名前" style="width:90%; padding:10px; margin-bottom:10px;">
+        <div id="start-ui">
+            <h1>🌍 MONOMONO ONLINE</h1>
+            <p>デバイスに保存されたデータで遊ぶか、新しく作成します</p>
+            <button class="btn btn-accent" onclick="showSub('create-ui')">✨ 新しく冒険を始める</button>
+            <button class="btn" onclick="openSignIn()">🔑 サインイン (続きから)</button>
+        </div>
+
+        <div id="create-ui" class="hidden">
+            <h2>新規キャラクター作成</h2>
+            <input type="text" id="new-name" placeholder="名前を入力してください" style="width:80%; padding:10px; margin-bottom:10px;">
+            <div style="margin-bottom:10px;">
+                <label>アバター画像選択：</label>
                 <input type="file" id="img-upload">
-                <button class="btn" onclick="auth()" style="background:var(--accent); color:black;">冒険を開始</button>
             </div>
+            <button class="btn btn-accent" onclick="createNewChar()">作成して職業選択へ</button>
+            <button class="btn" onclick="showSub('start-ui')">キャンセル</button>
         </div>
 
-        <div id="job-ui" class="hidden"><h3>職業を選択せよ</h3><div id="job-btns"></div></div>
-
-        <div id="point-ui" class="hidden">
-            <h3>能力強化 (残りBP:<span id="bp-val">0</span>)</h3>
-            <div id="point-config"></div>
-            <button class="btn" onclick="saveAndGoMenu()" style="background:var(--accent); color:black;">能力を確定</button>
+        <div id="signin-ui" class="hidden">
+            <h2>キャラクターを選択</h2>
+            <div id="user-list" style="max-height: 300px; overflow-y: auto; padding: 10px;"></div>
+            <button class="btn" onclick="showSub('start-ui')">戻る</button>
         </div>
 
+        <div id="job-ui" class="hidden"><h3>職業選択</h3><div id="job-btns"></div></div>
+        <div id="point-ui" class="hidden"><h3>能力強化 (BP:<span id="bp-val">0</span>)</h3><div id="point-config"></div><button class="btn btn-accent" onclick="saveAndGoMenu()">確定</button></div>
+        
         <div id="menu-ui" class="hidden">
             <h2 id="floor-tag">第1階層</h2>
-            <div id="boss-button-area" class="hidden">
-                <button class="btn btn-boss" onclick="startBossBattle()">👹 階層ボスに挑戦！</button>
-            </div>
-            <button class="btn" onclick="showSub('area-ui')" style="background:#27ae60;">⚔ エリア探索 (Lv上げ)</button>
-            <button class="btn" onclick="showSub('tower-ui')" style="background:#8e44ad;">🗼 試練の塔</button>
-            <button class="btn" onclick="showSub('online-ui')" style="background:#2980b9;">🌐 オンライン / 対戦</button>
-            <button class="btn" onclick="logout()" style="font-size:10px; margin-top:20px; color:#ff4757;">ログアウト</button>
+            <div id="boss-button-area" class="hidden"><button class="btn" style="background:red;" onclick="startBossBattle()">👹 階層ボスに挑む！</button></div>
+            <button class="btn" onclick="showSub('area-ui')">⚔ エリア探索</button>
+            <button class="btn" onclick="showSub('tower-ui')">🗼 試練の塔</button>
+            <button class="btn" onclick="logout()">タイトルに戻る</button>
         </div>
 
-        <div id="area-ui" class="hidden"><h3>探索エリア</h3><div id="area-list"></div><button class="btn" onclick="showSub('menu-ui')">戻る</button></div>
-        <div id="tower-ui" class="hidden"><h3>🗼 試練の塔</h3><p>最高記録: <b id="tower-best">0</b>階</p><button class="btn" onclick="startTower()" style="background:#8e44ad;">挑戦</button><button class="btn" onclick="showSub('menu-ui')">戻る</button></div>
-        <div id="online-ui" class="hidden"><h3>🌐 オンライン</h3><p>コード: <b id="my-code-disp"></b></p><input type="text" id="target-code" placeholder="MONO-XXXX" style="width:90%; padding:10px;"><button class="btn" onclick="addFriend()">フレ登録</button><button class="btn" onclick="startPvP()" style="background:#c0392b;">PvP</button><button class="btn" onclick="showSub('menu-ui')">戻る</button></div>
-        
         <div id="battle-ui" class="hidden">
-            <div id="battle-header" style="text-align:center; font-weight:bold;">BATTLE</div>
-            <div style="display:flex; justify-content:space-around; align-items:center; background:rgba(0,0,0,0.6); padding:15px; border-radius:15px;">
+            <h3 id="battle-header">BATTLE</h3>
+            <div style="display:flex; justify-content:space-around; align-items:center; background:rgba(0,0,0,0.5); padding:10px; border-radius:10px;">
                 <div id="p-battle-img"></div>
-                <div style="font-size:20px;">VS</div>
+                <div>VS</div>
                 <div style="text-align:center;">
-                    <div id="e-icon" style="font-size:50px;">👿</div>
-                    <div class="bar-bg" style="width:80px;"><div id="e-b-hp" class="hp-fill" style="width:100%;"></div></div>
+                    <div id="e-icon" style="font-size:40px;">👿</div>
+                    <div class="bar-bg" style="width:80px;"><div id="e-b-hp" class="hp-fill"></div></div>
                     <div id="e-name-disp" style="font-size:10px;">敵</div>
                 </div>
             </div>
             <div id="battle-log"></div>
         </div>
+
+        <div id="area-ui" class="hidden"><h3>エリア探索</h3><div id="area-list"></div><button class="btn" onclick="showSub('menu-ui')">戻る</button></div>
+        <div id="tower-ui" class="hidden"><h3>試練の塔</h3><button class="btn" onclick="startTower()">挑戦</button><button class="btn" onclick="showSub('menu-ui')">戻る</button></div>
     </div>
 </div>
 
 <script>
-// --- 基本データ ---
-const JOB_DATA = {
-    "剣士": {hp:15, atk:15, def:10, spd:12},
-    "大盾使い": {hp:35, atk:7, def:25, spd:4},
-    "弓使い": {hp:13, atk:11, def:7, spd:28, crit:0.4},
-    "魔導士": {hp:11, atk:5, matk:25, def:6, spd:11, magic:true},
-    "戦士": {hp:26, atk:20, def:14, spd:6}
-};
-const BOSS_DATA = [
-    { n: "草原の王 キングスライム", i: "👑", hp: 450, atk: 35, exp: 350 },
-    { n: "森の主 エンシェントベア", i: "🐻", hp: 900, atk: 60, exp: 800 }
-];
-const WORLD_AREAS = [
-    { name: "静かな草原", icon: "🌱", monsters: [{n:"スライム", i:"💧", hp:40, atk:10, exp:40}] },
-    { name: "迷いの森", icon: "🌳", monsters: [{n:"ウルフ", i:"🐺", hp:95, atk:22, exp:85}] }
-];
+const JOB_DATA = {"剣士":{hp:15,atk:15,def:10,spd:12},"大盾使い":{hp:35,atk:7,def:25,spd:4},"弓使い":{hp:13,atk:11,def:7,spd:28,crit:0.4},"魔導士":{hp:11,atk:5,matk:25,def:6,spd:11,magic:true}};
+const BOSS_DATA = [{n:"キングスライム",i:"👑",hp:450,atk:35,exp:350}];
+const WORLD_AREAS = [{name:"草原",icon:"🌱",monsters:[{n:"スライム",i:"💧",hp:40,atk:10,exp:40}]}];
 
-let p = null, curHp = 0, userImg = "👤", bLoop = null, isBoss = false, isTower = false;
+let p = null, curHp = 0, tempImg = "👤", bLoop = null;
 
-// --- ログイン & セーブ ---
-window.onload = function() {
-    const lastId = localStorage.getItem('mono_last_user');
-    if (lastId) {
-        const savedData = localStorage.getItem('mono_v8_save_' + lastId);
-        if (savedData) {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('auto-loading-msg').classList.remove('hidden');
-            p = JSON.parse(savedData);
-            userImg = p.img;
-            setTimeout(() => { completeLoad(); }, 500);
+// --- サインイン・新規作成ロジック ---
+function openSignIn() {
+    const listDiv = document.getElementById('user-list');
+    listDiv.innerHTML = "";
+    let found = false;
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("mono_v8_save_")) {
+            const data = JSON.parse(localStorage.getItem(key));
+            const btn = document.createElement('button');
+            btn.className = "btn";
+            btn.innerHTML = `<img src="${data.img}" style="width:20px; vertical-align:middle;"> ${data.name} (Lv.${data.lv})`;
+            btn.onclick = () => login(data.name);
+            listDiv.appendChild(btn);
+            found = true;
         }
     }
-};
-
-function auth() {
-    const id = document.getElementById('login-id').value;
-    if(!id) return alert("名前を入力！");
-    const saved = localStorage.getItem('mono_v8_save_' + id);
-    if(saved) {
-        p = JSON.parse(saved); userImg = p.img;
-        localStorage.setItem('mono_last_user', id);
-        completeLoad();
-    } else {
-        if(userImg === "👤") return alert("画像を選んで！");
-        p = { name: id, job:"", lv:1, exp:0, gold:0, bp:15, stats:{}, floor:1, explore:0, tower:0, img:userImg, friends:[], fCode: "MONO-"+Math.floor(Math.random()*999999) };
-        localStorage.setItem('mono_last_user', id);
-        showSub('job-ui');
-        document.getElementById('job-btns').innerHTML = Object.keys(JOB_DATA).map(j => `<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
-    }
+    if (!found) listDiv.innerHTML = "<p>保存されたデータがありません</p>";
+    showSub('signin-ui');
 }
 
-function logout() { localStorage.removeItem('mono_last_user'); location.reload(); }
-function save() { if(p) localStorage.setItem('mono_v8_save_' + p.name, JSON.stringify(p)); }
+function createNewChar() {
+    const name = document.getElementById('new-name').value;
+    if (!name) return alert("名前を入力してください");
+    if (localStorage.getItem("mono_v8_save_" + name)) return alert("その名前は既に存在します");
+    if (tempImg === "👤") return alert("画像を選択してください");
 
-// --- ゲーム進行 ---
+    p = { name: name, job: "", lv: 1, exp: 0, gold: 0, bp: 15, stats: {}, floor: 1, explore: 0, tower: 0, img: tempImg, friends: [], fCode: "MONO-" + Math.floor(Math.random() * 999999) };
+    
+    showSub('job-ui');
+    document.getElementById('job-btns').innerHTML = Object.keys(JOB_DATA).map(j => `<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
+}
+
+function login(name) {
+    p = JSON.parse(localStorage.getItem("mono_v8_save_" + name));
+    completeLoad();
+}
+
+function logout() { location.reload(); }
+
+// --- ゲームエンジン ---
 function setJob(j) { p.job = j; p.stats = {...JOB_DATA[j]}; showSub('point-ui'); renderPoints(); }
 function renderPoints() {
-    document.getElementById('point-config').innerHTML = Object.keys(p.stats).map(k => `
-        <div style="display:flex; justify-content:space-between; margin:5px; background:rgba(255,255,255,0.05); padding:8px; border-radius:5px;">
-            <span>${k.toUpperCase()}: <b>${p.stats[k]}</b></span>
-            <button onclick="adjStat('${k}')" style="width:40px; background:var(--accent); border:none; border-radius:3px;">+</button>
-        </div>`).join('');
+    document.getElementById('point-config').innerHTML = Object.keys(p.stats).map(k => `<div style="display:flex; justify-content:space-between; padding:5px;"><span>${k}:${p.stats[k]}</span><button onclick="adjStat('${k}')">+</button></div>`).join('');
     document.getElementById('bp-val').innerText = p.bp;
 }
 function adjStat(k) { if(p.bp > 0) { p.stats[k]++; p.bp--; renderPoints(); } }
 
-function completeLoad() { curHp = p.stats.hp * 5; updateUI(); showSub('menu-ui'); }
-function saveAndGoMenu() { save(); updateUI(); showSub('menu-ui'); }
+function completeLoad() {
+    curHp = p.stats.hp * 5;
+    document.getElementById('side-info').classList.remove('hidden');
+    updateUI();
+    showSub('menu-ui');
+}
+
+function save() { localStorage.setItem("mono_v8_save_" + p.name, JSON.stringify(p)); }
+function saveAndGoMenu() { save(); completeLoad(); }
 
 function updateUI() {
     if(!p) return;
-    const maxP = p.stats.hp * 5;
     document.getElementById('disp-name').innerText = p.name;
     document.getElementById('disp-level').innerText = `Lv.${p.lv} ${p.job}`;
+    const maxP = p.stats.hp * 5;
     document.getElementById('hp-text').innerText = `${curHp}/${maxP}`;
     document.getElementById('p-hp-bar').style.width = (curHp/maxP*100) + "%";
-    document.getElementById('xp-text').innerText = `${p.exp} / ${p.lv*100}`;
+    document.getElementById('xp-text').innerText = `${p.exp}/${p.lv*100}`;
     document.getElementById('p-xp-bar').style.width = (p.exp/(p.lv*100)*100) + "%";
-    document.getElementById('ex-text').innerText = p.explore + "%";
-    document.getElementById('p-ex-bar').style.width = p.explore + "%";
     document.getElementById('side-img-view').innerHTML = `<img src="${p.img}" class="pixel-img">`;
-    document.getElementById('stat-list').innerHTML = Object.keys(p.stats).map(k => `<div>${k.toUpperCase()}:${p.stats[k]}</div>`).join('');
     document.getElementById('gold-disp').innerText = `${p.gold} G`;
     document.getElementById('floor-tag').innerText = `第${p.floor}階層`;
-    document.getElementById('tower-best').innerText = p.tower;
-    document.getElementById('my-code-disp').innerText = p.fCode;
-    document.getElementById('friend-list-ui').innerText = p.friends.map(f=>f.n).join(', ') || "なし";
     document.getElementById('boss-button-area').className = (p.explore >= 100) ? "" : "hidden";
 }
 
-// --- バトル ---
-function startBattle(e, type = "normal") {
-    isBoss = (type === "boss"); isTower = (type === "tower");
+function startBattle(e, type="normal") {
     showSub('battle-ui');
-    
-    // 前の敵のHPバーが残っている場合があるため、ここで100%にリセット！
     document.getElementById('e-b-hp').style.width = "100%";
-    
-    document.getElementById('battle-header').innerText = isBoss ? "⚠️ BOSS" : (isTower ? "🗼 TOWER" : "BATTLE");
     const log = document.getElementById('battle-log');
     log.innerHTML = `<div><b>${e.en}</b> が現れた！</div>`;
-    
     let mE = e.hp, cE = e.hp;
     document.getElementById('p-battle-img').innerHTML = `<img src="${p.img}" class="pixel-img">`;
     document.getElementById('e-icon').innerText = e.i;
     document.getElementById('e-name-disp').innerText = e.en;
 
     bLoop = setInterval(() => {
-        // 自攻撃
-        let dmg = Math.max(1, (p.stats.magic ? p.stats.matk : p.stats.atk) - Math.floor(e.def||0));
-        if(p.stats.crit && Math.random() < p.stats.crit) { dmg *= 2; log.innerHTML += `<div style="color:yellow;">★CRITICAL!</div>`; }
+        let dmg = Math.max(1, (p.stats.magic?p.stats.matk:p.stats.atk));
         cE -= dmg; log.innerHTML += `<div>⚔ ${p.name}: ${dmg}ダメ</div>`;
-        
-        if(cE <= 0) {
-            document.getElementById('e-b-hp').style.width = "0%";
-            clearInterval(bLoop); finishBattle(true, e);
-        } else {
-            // 敵攻撃
-            let eDmg = Math.max(1, e.atk - Math.floor(p.stats.def / 2));
+        if(cE <= 0) { clearInterval(bLoop); finishBattle(true, e, type); }
+        else {
+            let eDmg = Math.max(1, e.atk - Math.floor(p.stats.def/2));
             curHp -= eDmg; log.innerHTML += `<div style="color:red;">💥 敵: ${eDmg}ダメ</div>`;
-            if(curHp <= 0) { clearInterval(bLoop); finishBattle(false, e); }
+            if(curHp <= 0) { clearInterval(bLoop); finishBattle(false, e, type); }
         }
-        // HPバーの更新
-        if(cE > 0) document.getElementById('e-b-hp').style.width = (cE/mE*100) + "%";
+        document.getElementById('e-b-hp').style.width = (Math.max(0,cE)/mE*100) + "%";
         updateUI();
     }, 800);
 }
 
-function finishBattle(win, e) {
+function finishBattle(win, e, type) {
     if(win) {
-        p.exp += e.exp; p.gold += Math.floor(e.exp*0.8);
-        if(isBoss) { p.floor++; p.explore = 0; alert("BOSS撃破！階層UP！"); }
-        else if(isTower) { if(e.floor > p.tower) p.tower = e.floor; alert(e.floor+"階クリア！"); }
+        p.exp += e.exp; p.gold += e.exp;
+        if(type === "boss") { p.floor++; p.explore = 0; alert("BOSS撃破！"); }
         else { p.explore = Math.min(100, p.explore + 25); }
-        
-        if(p.exp >= p.lv * 100) {
-            p.exp = 0; p.lv++; p.bp += 5; alert("Lv UP!"); showSub('point-ui'); renderPoints();
-        } else { saveAndGoMenu(); }
-    } else {
-        alert("敗北..."); curHp = p.stats.hp * 5; saveAndGoMenu();
-    }
+        if(p.exp >= p.lv*100) { p.exp=0; p.lv++; p.bp+=5; showSub('point-ui'); renderPoints(); }
+        else { save(); showSub('menu-ui'); }
+    } else { alert("敗北..."); curHp = p.stats.hp*5; save(); showSub('menu-ui'); }
 }
 
-// --- 他モード ---
-function startBossBattle() {
-    const b = BOSS_DATA[p.floor-1] || BOSS_DATA[BOSS_DATA.length-1];
-    startBattle({ en:b.n, i:b.i, hp:b.hp, atk:b.atk, exp:b.exp }, "boss");
-}
-function startTower() {
-    const floor = p.tower + 1;
-    startBattle({ en:"守護兵", i:"🛡️", hp:100+floor*25, atk:15+floor*6, exp:50+floor*12, floor:floor }, "tower");
-}
-function addFriend() { 
-    const code = document.getElementById('target-code').value;
-    if(code.startsWith("MONO-")) { p.friends.push({n:"冒険者"+code.slice(-4)}); alert("登録完了！"); updateUI(); save(); }
-}
-function startPvP() { startBattle({ en:"他プレイヤー", i:"👤", hp:350, atk:35, exp:0 }); }
-function encount(name) {
-    const area = WORLD_AREAS.find(a => a.name === name);
-    const mon = area.monsters[0];
-    startBattle({ en:mon.n, i:mon.i, hp:mon.hp+(p.floor*20), atk:mon.atk+(p.floor*4), exp:mon.exp });
-}
+function startBossBattle() { const b = BOSS_DATA[0]; startBattle({en:b.n, i:b.i, hp:b.hp, atk:b.atk, exp:b.exp}, "boss"); }
+function startTower() { startBattle({en:"塔の番人", i:"🛡️", hp:150, atk:20, exp:100}, "tower"); }
+function encount() { const m = WORLD_AREAS[0].monsters[0]; startBattle({en:m.n, i:m.i, hp:m.hp, atk:m.atk, exp:m.exp}); }
 
 function showSub(id) {
-    const ids = ["login-ui", "job-ui", "point-ui", "menu-ui", "area-ui", "tower-ui", "online-ui", "battle-ui"];
+    const ids = ["start-ui", "create-ui", "signin-ui", "job-ui", "point-ui", "menu-ui", "area-ui", "battle-ui", "tower-ui"];
     ids.forEach(i => document.getElementById(i).classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
     if(id === 'area-ui') renderAreaList();
 }
-
 function renderAreaList() {
-    document.getElementById('area-list').innerHTML = WORLD_AREAS.map(a => `<div class="btn" onclick="encount('${a.name}')" style="background:rgba(255,255,255,0.1); text-align:left;">${a.icon} ${a.name}</div>`).join('');
+    document.getElementById('area-list').innerHTML = `<button class="btn" onclick="encount()">草原を探索</button>`;
 }
 
 document.getElementById('img-upload').onchange = (e) => {
-    const r = new FileReader(); r.onload = (ev) => { userImg = ev.target.result; }; r.readAsDataURL(e.target.files[0]);
+    const r = new FileReader(); r.onload = (ev) => { tempImg = ev.target.result; }; r.readAsDataURL(e.target.files[0]);
 };
 </script>
 </body>
