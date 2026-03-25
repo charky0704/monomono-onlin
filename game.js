@@ -60,16 +60,15 @@ function updateUI(){
   if(lvEl) lvEl.textContent = p.lv;
   if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
   if(expEl) expEl.textContent = p.exp;
-}
-    const statusEl = document.getElementById("status");
-    if(statusEl){
-        statusEl.innerHTML = 
-        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
-    } else {
-        console.warn("status要素が見つかりません");
-    }
-}
 
+  const statusEl = document.getElementById("status");
+  if(statusEl){
+      statusEl.innerHTML = 
+      `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
+  } else {
+      console.warn("status要素が見つかりません");
+  }
+}
 /* ===== 探索 ===== */
 function exploreArea(){
     show("menu");
