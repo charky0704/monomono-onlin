@@ -56,6 +56,9 @@ function logout(){ location.reload(); }
 
 function startTower(){ alert("塔は未実装"); }
 
+<script src="game.js"></script>
+<script src="battle.js"></script>
+
 // グローバル公開
 window.goCreate = goCreate;
 window.createPlayer = createPlayer;
@@ -64,5 +67,3 @@ window.exploreArea = exploreArea;
 window.saveGame = saveGame;
 window.logout = logout;
 window.startTower = startTower;
-<script src="game.js"></script>
-<script src="battle.js"></script>
