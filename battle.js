@@ -119,3 +119,50 @@ function log(text){
 document.getElementById("log").innerHTML +=
 text + "<br>";
 }
+function winBattle(){
+
+inBattle = false;
+
+p.exp += enemy.exp;
+
+/* ===== 探索 or 塔判定 ===== */
+if(enemy.name.includes("TOWER")){
+
+towerFloor++;
+
+log("塔クリア！ " + towerFloor + "階へ");
+
+if(towerFloor > maxTowerFloor){
+maxTowerFloor = towerFloor;
+}
+}
+
+/* レベルアップ */
+if(p.exp >= p.lv * 100){
+p.lv++;
+p.exp = 0;
+p.maxhp += 20;
+log("LEVEL UP!");
+}
+
+setTimeout(()=>{
+show("menu");
+updateUI();
+},1200);
+}
+function loseBattle(){
+
+inBattle = false;
+
+if(enemy.name.includes("TOWER")){
+log("塔リタイア: " + towerFloor + "階");
+towerFloor = 1;
+}
+
+p.hp = p.maxhp;
+
+setTimeout(()=>{
+show("menu");
+updateUI();
+},1200);
+}
