@@ -289,7 +289,7 @@ function updateUI() {
     document.getElementById('p-hp-bar').style.width = (curHp/maxP*100) + "%";
     document.getElementById('exp-text').innerText = `${p.exp}/${nextExp}`;
     document.getElementById('p-exp-bar').style.width = (p.exp/nextExp*100) + "%";
-    document.getElementById('gold-disp').innerText = `💰 ${p.gold}`;
+    document.getElementById('gold-disp').innerText = `G ${p.gold}`;
     document.getElementById('my-code-disp').innerText = "マイコード: " + p.fCode;
     document.getElementById('tower-best').innerText = p.tower;
     document.getElementById('stat-list').innerHTML = Object.keys(p.stats).map(k => `<div>${k.toUpperCase()}: ${p.stats[k]}</div>`).join('');
