@@ -1,21 +1,27 @@
+// ===== グローバル変数 =====
 let p = null;
 let floor = 1;
 let explore = 0;
 let maxExplore = 5;
 let inBattle = false;
 
+// ===== 画面切り替え =====
 function show(id){
   ["start","create","menu","battle"].forEach(i=>{
-    document.getElementById(i).classList.add("hidden");
+    const el = document.getElementById(i);
+    if(el) el.classList.add("hidden");
   });
-  document.getElementById(id).classList.remove("hidden");
+  const target = document.getElementById(id);
+  if(target) target.classList.remove("hidden");
 }
 
+// ===== キャラ作成画面へ =====
 function goCreate() {
-    alert("goCreate が呼ばれた！");
+    alert("goCreate が呼ばれた！"); // デバッグ用
     show("create");
 }
 
+// ===== プレイヤー作成 =====
 function createPlayer(){
   const name = document.getElementById("name").value;
   const file = document.getElementById("img").files[0];
@@ -36,18 +42,32 @@ function createPlayer(){
   updateUI();
 }
 
+// ===== メニュー更新 =====
 function updateUI(){
   if(!p) return;
-  document.getElementById("pname-status").textContent = p.name;
-  document.getElementById("plv-status").textContent = p.lv;
-  document.getElementById("php-status").textContent = `${p.hp} / ${p.maxhp}`;
-  document.getElementById("pexp-status").textContent = p.exp;
+  const nameEl = document.getElementById("pname-status");
+  const lvEl = document.getElementById("plv-status");
+  const hpEl = document.getElementById("php-status");
+  const expEl = document.getElementById("pexp-status");
+
+  if(nameEl) nameEl.textContent = p.name;
+  if(lvEl) lvEl.textContent = p.lv;
+  if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
+  if(expEl) expEl.textContent = p.exp;
 }
 
-function exploreArea(){ alert("探索イベント！"); }
+// ===== 探索（ダミー） =====
+function exploreArea(){
+    alert("探索イベント！");
+}
 
-function saveGame(){ if(!p) return; localStorage.setItem("mono", JSON.stringify(p)); }
+// ===== セーブ =====
+function saveGame(){ 
+    if(!p) return; 
+    localStorage.setItem("mono", JSON.stringify(p)); 
+}
 
+// ===== ロード =====
 function loadGame(){
   p = JSON.parse(localStorage.getItem("mono"));
   if(!p){ alert("データなし"); return; }
@@ -55,14 +75,13 @@ function loadGame(){
   updateUI();
 }
 
+// ===== ログアウト =====
 function logout(){ location.reload(); }
 
+// ===== 塔（ダミー） =====
 function startTower(){ alert("塔は未実装"); }
 
-<script src="game.js"></script>
-<script src="battle.js"></script>
-
-// グローバル公開
+// ===== グローバル公開 =====
 window.goCreate = goCreate;
 window.createPlayer = createPlayer;
 window.loadGame = loadGame;
