@@ -1,9 +1,17 @@
+let p = null;
+let floor = 1;
+let explore = 0;
+let maxExplore = 5;
+let inBattle = false;
+
 /* ===== 画面切り替え ===== */
 function show(id){
     ["start","create","menu","battle"].forEach(i=>{
-        document.getElementById(i).classList.add("hidden");
+        const el = document.getElementById(i);
+        if(el) el.classList.add("hidden");
     });
-    document.getElementById(id).classList.remove("hidden");
+    const target = document.getElementById(id);
+    if(target) target.classList.remove("hidden");
 }
 
 /* ===== キャラ作成画面へ ===== */
@@ -13,9 +21,8 @@ function goCreate(){
 
 /* ===== プレイヤー作成 ===== */
 function createPlayer(){
-
-    const name = document.getElementById("name").value;
-    const file = document.getElementById("img").files[0];
+    const name = document.getElementById("name")?.value;
+    const file = document.getElementById("img")?.files[0];
 
     if(!name){
         alert("名前必須");
@@ -36,12 +43,6 @@ function createPlayer(){
         maxhp:100
     };
 
-    // 初期値を定義
-    floor = 1;
-    explore = 0;
-    maxExplore = 5;
-    inBattle = false;
-
     saveGame();
     show("menu");
     updateUI();
@@ -49,46 +50,26 @@ function createPlayer(){
 
 /* ===== メニュー更新 ===== */
 function updateUI(){
-
     if(!p) return;
 
-    document.getElementById("status").innerHTML =
-    `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
+    const statusEl = document.getElementById("status");
+    if(statusEl){
+        statusEl.innerHTML = 
+        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>EXP:${p.exp}<br>Explore:${explore}/${maxExplore}`;
+    } else {
+        console.warn("status要素が見つかりません");
+    }
 }
 
 /* ===== 探索 ===== */
 function exploreArea(){
     show("menu");
-    if(!p) return;
-    document.getElementById("status").innerHTML =
-    `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>探索:${explore}/${maxExplore}`;
-}
 
-function startExploreBattle(){
-
-    if(inBattle) return;
-
-    startBattle({
-        name:"SLIME",
-        hp:50 + floor * 20,
-        atk:10 + floor * 5,
-        exp:20 + floor * 10
-    });
-}
-
-function startBoss(){
-
-    if(explore < maxExplore){
-        alert("まだボスは解放されていない");
-        return;
+    const statusEl = document.getElementById("status");
+    if(statusEl){
+        statusEl.innerHTML =
+        `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>探索:${explore}/${maxExplore}`;
     }
-
-    startBattle({
-        name:"BOSS",
-        hp:200 + floor * 50,
-        atk:25 + floor * 10,
-        exp:200
-    });
 }
 
 /* ===== セーブ ===== */
@@ -99,7 +80,6 @@ function saveGame(){
 
 /* ===== ロード ===== */
 function loadGame(){
-
     p = JSON.parse(localStorage.getItem("mono"));
 
     if(!p){
@@ -107,7 +87,6 @@ function loadGame(){
         return;
     }
 
-    // 初期値を安全に定義
     if(typeof floor === "undefined") floor = 1;
     if(typeof explore === "undefined") explore = 0;
     if(typeof maxExplore === "undefined") maxExplore = 5;
@@ -122,17 +101,16 @@ function logout(){
     location.reload();
 }
 
+/* ===== ボスクリア後 ===== */
 function clearBoss(){
-
     floor++;
     explore = 0;
-
     alert("次の階層へ！");
     show("menu");
     updateUI();
 }
 
-/* ===== ダミー定義（エラー防止） ===== */
+/* ===== ダミー関数 ===== */
 function startTower(){
     alert("塔機能は未実装です");
 }
