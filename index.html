@@ -26,15 +26,28 @@
 </div>
 
 <!-- メニュー -->
-<div id="menu" class="screen hidden">
-<h2>MENU</h2>
+<div id="menu" class="screen hidden" style="display: flex; gap: 20px; padding: 10px;">
 
-<div id="status"></div>
+  <!-- ステータス左カラム -->
+  <section style="flex: 1; background: #f0f0f0; padding: 10px; border-radius: 6px;">
+    <h2>ステータス</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><th style="text-align:left; padding: 4px;">名前</th><td id="pname-status" style="padding: 4px;"></td></tr>
+      <tr><th style="text-align:left; padding: 4px;">レベル</th><td id="plv-status" style="padding: 4px;"></td></tr>
+      <tr><th style="text-align:left; padding: 4px;">HP</th><td id="php-status" style="padding: 4px;"></td></tr>
+      <tr><th style="text-align:left; padding: 4px;">EXP</th><td id="pexp-status" style="padding: 4px;"></td></tr>
+      <!-- 追加のステータス欄はここに入れてください -->
+    </table>
+  </section>
 
-<button onclick="explore()">EXPLORE</button>
-<button onclick="startTower()">TOWER</button>
-<button onclick="saveGame()">SAVE</button>
-<button onclick="logout()">LOGOUT</button>
+  <!-- 行動メニュー右カラム -->
+  <section style="flex: 1; background: #e5e5e5; padding: 10px; border-radius: 6px;">
+    <h2>行動メニュー</h2>
+    <button onclick="explore()">探索する</button><br><br>
+    <button onclick="startTower()">塔に挑戦</button><br><br>
+    <button onclick="saveGame()">セーブ</button><br><br>
+    <button onclick="logout()">ログアウト</button>
+  </section>
 
 </div>
 
