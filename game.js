@@ -68,6 +68,27 @@ atk:10 + floor * 5,
 exp:20 + floor * 10
 });
 }
+function startBoss(){
+
+if(explore < maxExplore){
+alert("まだボスは解放されていない");
+return;
+}
+
+startBattle({
+name:"BOSS",
+hp:200 + floor * 50,
+atk:25 + floor * 10,
+exp:200
+});
+}
+
+document.getElementById("status").innerHTML =
+`${p.name}<br>
+Lv:${p.lv}<br>
+Floor:${floor}<br>
+EXP:${p.exp}<br>
+Explore:${explore}/${maxExplore}`;
 
 /* ===== セーブ ===== */
 function saveGame(){
@@ -92,4 +113,14 @@ updateUI();
 /* ===== ログアウト ===== */
 function logout(){
 location.reload();
+}
+
+function clearBoss(){
+
+floor++;
+explore = 0;
+
+alert("次の階層へ！");
+show("menu");
+updateUI();
 }
