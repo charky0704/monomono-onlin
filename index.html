@@ -12,14 +12,14 @@ button { padding: 10px 20px; margin: 5px; cursor: pointer; }
 <body>
 
 <!-- START画面 -->
-<div id="start" class="screen active">
+<div id="start" class="screen">
   <h1>MONOMONO ONLINE</h1>
   <button onclick="goCreate()">NEW GAME</button>
   <button onclick="loadGame()">CONTINUE</button>
 </div>
 
-<!-- キャラ作成画面 -->
-<div id="create" class="screen">
+<!-- キャラ作成 -->
+<div id="create" class="screen hidden">
   <h2>CREATE CHARACTER</h2>
   <input id="name" placeholder="NAME"><br><br>
   <input type="file" id="img"><br><br>
