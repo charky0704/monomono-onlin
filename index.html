@@ -3,28 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <title>MONOMONO ONLINE</title>
-<link rel="stylesheet" href="style.css">
+<style>
+body { font-family:sans-serif; margin:0; padding:0; background:#fafafa; }
+.screen { display:none; width:100%; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+.screen:not(.hidden) { display:flex; }
+button { padding:10px 20px; margin:5px; border:none; border-radius:5px; background:#1e90ff; color:white; cursor:pointer; }
+button:hover { background:#63b3ff; }
+.menu-container { display:flex; gap:20px; padding:10px; width:80%; max-width:800px; }
+.menu-section { flex:1; padding:10px; border-radius:6px; background:#f0f0f0; }
+.menu-section h2 { margin-top:0; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:4px; text-align:left; }
+#battleTop { display:flex; justify-content:space-between; align-items:center; padding:20px; width:80%; max-width:800px; }
+.unit { width:40%; }
+.vs { font-size:30px; text-align:center; }
+.bar { width:100%; height:10px; background:#333; border-radius:5px; overflow:hidden; }
+.hp { height:100%; width:100%; background:red; transition:0.3s; }
+#log { position:fixed; bottom:0; width:100%; height:120px; background:black; color:white; overflow:auto; font-size:12px; padding:10px; }
+</style>
 </head>
 <body>
 
 <!-- START画面 -->
 <div id="start" class="screen">
-  <h1>MONOMONO ONLINE</h1>
-  <button onclick="window.goCreate()">NEW GAME</button>
-  <button onclick="loadGame()">CONTINUE</button>
+<h1>MONOMONO ONLINE</h1>
+<button onclick="goCreate()">NEW GAME</button>
+<button onclick="loadGame()">CONTINUE</button>
 </div>
 
-<!-- キャラ作成 -->
+<!-- CREATE -->
 <div id="create" class="screen hidden">
-  <h2>CREATE CHARACTER</h2>
-  <input id="name" placeholder="NAME"><br><br>
-  <input type="file" id="img"><br><br>
-  <button onclick="createPlayer()">START</button>
+<h2>CREATE CHARACTER</h2>
+<input id="name" placeholder="NAME"><br><br>
+<input type="file" id="img"><br><br>
+<button onclick="createPlayer()">START</button>
 </div>
 
-<!-- メニュー -->
+<!-- MENU -->
 <div id="menu" class="screen hidden">
-  <section class="status-panel">
+<h2>MENU</h2>
+<div class="menu-container">
+  <section class="menu-section">
     <h2>ステータス</h2>
     <table>
       <tr><th>名前</th><td id="pname-status"></td></tr>
@@ -33,35 +52,137 @@
       <tr><th>EXP</th><td id="pexp-status"></td></tr>
     </table>
   </section>
-  <section class="action-panel">
+  <section class="menu-section">
     <h2>行動メニュー</h2>
-    <button onclick="exploreArea()">探索する</button><br><br>
-    <button onclick="startTower()">塔に挑戦</button><br><br>
-    <button onclick="saveGame()">セーブ</button><br><br>
+    <button onclick="exploreArea()">探索する</button><br>
+    <button onclick="startTower()">塔に挑戦</button><br>
+    <button onclick="saveGame()">セーブ</button><br>
     <button onclick="logout()">ログアウト</button>
   </section>
 </div>
-
-<!-- 戦闘 -->
-<div id="battle" class="screen hidden">
-  <div id="battleTop">
-    <div class="unit">
-      <img id="pimg" width="80">
-      <div id="pname"></div>
-      <div class="bar"><div id="php" class="hp"></div></div>
-    </div>
-    <div class="vs">VS</div>
-    <div class="unit">
-      <div id="ename"></div>
-      <div class="bar"><div id="ehp" class="hp"></div></div>
-    </div>
-  </div>
-  <div id="log"></div>
 </div>
 
-<script src="data.js"></script>
-<script src="game.js"></script>
-<script src="battle.js"></script>
+<!-- BATTLE -->
+<div id="battle" class="screen hidden">
+<div id="battleTop">
+  <div class="unit">
+    <img id="pimg" width="80">
+    <div id="pname"></div>
+    <div class="bar"><div id="php" class="hp"></div></div>
+  </div>
+  <div class="vs">VS</div>
+  <div class="unit">
+    <div id="ename"></div>
+    <div class="bar"><div id="ehp" class="hp"></div></div>
+  </div>
+</div>
+<div id="log"></div>
+</div>
+
+<script>
+let p = null;
+let floor = 1;
+let explore = 0;
+let maxExplore = 5;
+let inBattle = false;
+let enemy = { name:"SLIME", hp:50, atk:10, exp:30 };
+
+function show(id){
+  ["start","create","menu","battle"].forEach(i=>{
+    document.getElementById(i)?.classList.add("hidden");
+  });
+  document.getElementById(id)?.classList.remove("hidden");
+}
+
+function goCreate() { show("create"); }
+
+function createPlayer(){
+  const name = document.getElementById("name").value;
+  const file = document.getElementById("img").files[0];
+  if(!name){ alert("名前は必須"); return; }
+  if(!file){ alert("見た目は必須"); return; }
+
+  p = { name, lv:1, exp:0, hp:100, maxhp:100, img:URL.createObjectURL(file) };
+  saveGame();
+  show("menu");
+  updateUI();
+}
+
+function updateUI(){
+  if(!p) return;
+  document.getElementById("pname-status").textContent = p.name;
+  document.getElementById("plv-status").textContent = p.lv;
+  document.getElementById("php-status").textContent = `${p.hp} / ${p.maxhp}`;
+  document.getElementById("pexp-status").textContent = p.exp;
+}
+
+function exploreArea(){
+  if(inBattle){ alert("戦闘中は探索できません"); return; }
+  startBattle({name:"SLIME", hp:50 + floor*20, atk:10 + floor*5, exp:20 + floor*10});
+}
+
+function startTower(){ alert("塔は未実装"); }
+function saveGame(){ if(!p) return; localStorage.setItem("mono",JSON.stringify(p)); }
+function loadGame(){ p=JSON.parse(localStorage.getItem("mono")); if(!p){ alert("データなし"); return; } show("menu"); updateUI(); }
+function logout(){ location.reload(); }
+
+/* ===== BATTLE ===== */
+function startBattle(e){
+  if(inBattle) return;
+  inBattle = true;
+  show("battle");
+  const phpEl=document.getElementById("php");
+  const ehpEl=document.getElementById("ehp");
+  document.getElementById("pimg").src = p.img;
+  document.getElementById("pname").textContent = p.name;
+  enemy = e;
+  document.getElementById("ename").textContent = enemy.name;
+
+  let php = p.hp;
+  let ehp = enemy.hp;
+  log("BATTLE START!");
+
+  const loop = setInterval(()=>{
+    ehp -= 10;
+    log(p.name+" attacks!");
+    if(ehp <=0){ clearInterval(loop); winBattle(); return; }
+    php -= enemy.atk;
+    log(enemy.name+" attacks!");
+    if(php <=0){ clearInterval(loop); loseBattle(); return; }
+    phpEl.style.width=(php/p.maxhp*100)+"%";
+    ehpEl.style.width=(ehp/enemy.hp*100)+"%";
+    p.hp = php;
+  },800);
+}
+
+function winBattle(){
+  inBattle=false;
+  p.exp+=enemy.exp;
+  if(p.exp>=p.lv*100){ p.lv++; p.exp=0; p.maxhp+=20; p.hp=p.maxhp; log("LEVEL UP!"); }
+  setTimeout(()=>{ show("menu"); updateUI(); },1200);
+}
+
+function loseBattle(){
+  inBattle=false;
+  p.hp=p.maxhp;
+  log("敗北...");
+  setTimeout(()=>{ show("menu"); updateUI(); },1200);
+}
+
+function log(text){
+  const logEl = document.getElementById("log");
+  logEl.innerHTML += text+"<br>";
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+window.goCreate=goCreate;
+window.createPlayer=createPlayer;
+window.loadGame=loadGame;
+window.exploreArea=exploreArea;
+window.saveGame=saveGame;
+window.logout=logout;
+window.startTower=startTower;
+</script>
 
 </body>
 </html>
