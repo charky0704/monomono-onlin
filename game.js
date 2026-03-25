@@ -11,7 +11,10 @@ function show(id){
   document.getElementById(id).classList.remove("hidden");
 }
 
-function goCreate(){ show("create"); }
+function goCreate() {
+    alert("goCreate が呼ばれた！");
+    show("create");
+}
 
 function createPlayer(){
   const name = document.getElementById("name").value;
