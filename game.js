@@ -50,8 +50,17 @@ function createPlayer(){
 
 /* ===== メニュー更新 ===== */
 function updateUI(){
-    if(!p) return;
+  if(!p) return;
+  const nameEl = document.getElementById("pname-status");
+  const lvEl = document.getElementById("plv-status");
+  const hpEl = document.getElementById("php-status");
+  const expEl = document.getElementById("pexp-status");
 
+  if(nameEl) nameEl.textContent = p.name;
+  if(lvEl) lvEl.textContent = p.lv;
+  if(hpEl) hpEl.textContent = `${p.hp} / ${p.maxhp}`;
+  if(expEl) expEl.textContent = p.exp;
+}
     const statusEl = document.getElementById("status");
     if(statusEl){
         statusEl.innerHTML = 
