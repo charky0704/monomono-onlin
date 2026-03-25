@@ -57,6 +57,17 @@ show("menu");
 document.getElementById("status").innerHTML =
 `${p.name}<br>Lv:${p.lv}<br>Floor:${floor}<br>探索:${explore}/${maxExplore}`;
 }
+function startExploreBattle(){
+
+if(inBattle) return;
+
+startBattle({
+name:"SLIME",
+hp:50 + floor * 20,
+atk:10 + floor * 5,
+exp:20 + floor * 10
+});
+}
 
 /* ===== セーブ ===== */
 function saveGame(){
