@@ -6,7 +6,7 @@
 
 <style>
 :root { 
-    --panel: rgba(255,255,255,0.85); 
+    --panel: rgba(255,255,255,0.9); 
     --accent: #00aaff; 
     --sub-accent: #0077ff;
     --xp: #39ff14; 
@@ -36,6 +36,8 @@ body {
 .side-panel { flex: 1; min-width: 300px; border-left: 4px solid var(--accent); }
 .main-panel { flex: 2; text-align: center; overflow-y: auto;}
 
+h1,h2{color:var(--accent)}
+
 .btn { 
     width: 100%; padding: 15px; margin: 10px 0; 
     background: white; border: 1px solid var(--accent); 
@@ -43,11 +45,15 @@ body {
 }
 .btn:hover { background: var(--accent); color: white; }
 
+.btn-mini { width:40px;height:40px }
+
 .hidden { display: none !important; }
 
-.bar-bg { height: 12px; background: #ccc; border-radius: 6px; }
+.bar-bg { height: 12px; background: #ccc; border-radius: 6px; margin:5px 0;}
 .hp-fill { height: 100%; background: red; width: 100%; }
 .xp-fill { height: 100%; background: lime; width: 0%; }
+
+.stat-row { display:flex; justify-content:space-between; margin:5px 0; }
 
 #battle-log {
     height: 200px;
@@ -67,7 +73,11 @@ body {
     <div id="disp-name"></div>
     <div id="disp-level"></div>
     <div class="bar-bg"><div id="p-hp-bar" class="hp-fill"></div></div>
+    <div id="hp-text"></div>
     <div class="bar-bg"><div id="p-xp-bar" class="xp-fill"></div></div>
+    <div id="xp-text"></div>
+    <div id="stat-list"></div>
+    <div id="gold-disp"></div>
 </div>
 
 <div class="main-panel panel">
@@ -78,12 +88,22 @@ body {
 </div>
 
 <div id="create-ui" class="hidden">
-    <input type="text" id="new-name" placeholder="Name">
-    <button class="btn" onclick="createNewChar()">START</button>
+    <h2>CREATE</h2>
+    <input id="new-name" placeholder="Name">
+    <button class="btn" onclick="createNewChar()">NEXT</button>
+</div>
+
+<div id="job-ui" class="hidden"></div>
+
+<div id="point-ui" class="hidden">
+    <h2>STATUS</h2>
+    BP:<span id="bp-val"></span>
+    <div id="point-config"></div>
+    <button class="btn" onclick="saveAndGoMenu()">OK</button>
 </div>
 
 <div id="menu-ui" class="hidden">
-    <button class="btn" onclick="encount()">戦闘</button>
+    <button class="btn" onclick="encount()">探索</button>
 </div>
 
 <div id="battle-ui" class="hidden">
@@ -94,63 +114,123 @@ body {
 </div>
 
 <script>
-let p=null, curHp=0;
+const JOB_DATA={
+剣士:{hp:15,atk:15,def:10,spd:12},
+魔導士:{hp:10,atk:5,def:5,matk:20,magic:true}
+};
+
+let p=null,curHp=0,initialStats={};
 
 function createNewChar(){
-    const name=document.getElementById('new-name').value;
-    p={name,lv:1,exp:0,gold:0,stats:{hp:10,atk:5,def:3}};
-    curHp=50;
-    document.getElementById('side-info').classList.remove('hidden');
-    showSub('menu-ui');
-    updateUI();
+const name=document.getElementById('new-name').value;
+p={name,lv:1,exp:0,gold:0,bp:10,stats:{},floor:1};
+showSub('job-ui');
+renderJobs();
+}
+
+function renderJobs(){
+document.getElementById('job-ui').innerHTML=
+Object.keys(JOB_DATA).map(j=>
+`<button class="btn" onclick="setJob('${j}')">${j}</button>`).join('');
+}
+
+function setJob(j){
+p.job=j;
+p.stats={...JOB_DATA[j]};
+initialStats={...p.stats};
+showSub('point-ui');
+renderPoints();
+}
+
+function renderPoints(){
+document.getElementById('bp-val').innerText=p.bp;
+document.getElementById('point-config').innerHTML=
+Object.keys(p.stats).map(k=>
+`<div class="stat-row">${k}:${p.stats[k]}
+<button onclick="adjStat('${k}',1)">+</button>
+<button onclick="adjStat('${k}',-1)">-</button></div>`).join('');
+}
+
+function adjStat(k,v){
+if(v>0&&p.bp>0){p.stats[k]++;p.bp--;}
+if(v<0&&p.stats[k]>initialStats[k]){p.stats[k]--;p.bp++;}
+renderPoints();
+}
+
+function saveAndGoMenu(){
+curHp=p.stats.hp*5;
+document.getElementById('side-info').classList.remove('hidden');
+showSub('menu-ui');
+updateUI();
 }
 
 function updateUI(){
-    document.getElementById('disp-name').innerText=p.name;
-    document.getElementById('disp-level').innerText="Lv."+p.lv;
+document.getElementById('disp-name').innerText=p.name;
+document.getElementById('disp-level').innerText="Lv."+p.lv;
+document.getElementById('gold-disp').innerText=p.gold;
 }
 
 function encount(){
-    startBattle({en:"SLIME",hp:30,atk:5,exp:20});
+startBattle({en:"SLIME",hp:40,atk:10,exp:30});
 }
 
 function startBattle(e){
-    showSub('battle-ui');
-    const log=document.getElementById('battle-log');
-    log.innerHTML="敵出現："+e.en+"<br>";
+showSub('battle-ui');
+const log=document.getElementById('battle-log');
+log.innerHTML="敵："+e.en+"<br>";
 
-    let hp=e.hp;
+let hp=e.hp;
 
-    let loop=setInterval(()=>{
-        hp-=p.stats.atk;
-        log.innerHTML+="攻撃！<br>";
+let loop=setInterval(()=>{
+let dmg=p.stats.magic?p.stats.matk:p.stats.atk;
+hp-=dmg;
+log.innerHTML+="攻撃 "+dmg+"<br>";
 
-        if(hp<=0){
-            clearInterval(loop);
-            finishBattle(true,e);
-        }
-    },500);
+if(hp<=0){
+clearInterval(loop);
+finishBattle(true,e);
+}
+},600);
 }
 
-/* ✅ 撃破後演出 */
+/* 🏆 修正ポイント */
 function finishBattle(win,e){
-    const log=document.getElementById('battle-log');
+const log=document.getElementById('battle-log');
 
-    if(win){
-        log.innerHTML+="🏆 "+e.en+" を倒した！";
+if(win){
+log.innerHTML+="🏆 "+e.en+" を倒した！<br>";
 
-        setTimeout(()=>{
-            p.exp+=e.exp;
-            showSub('menu-ui');
-        },2000);
-    }
+setTimeout(()=>{
+p.exp+=e.exp;
+p.gold+=e.exp;
+
+if(p.exp>=p.lv*100){
+p.exp=0;
+p.lv++;
+p.bp+=5;
+initialStats={...p.stats};
+showSub('point-ui');
+renderPoints();
+}else{
+showSub('menu-ui');
+}
+},2000);
+
+}else{
+log.innerHTML+="💀 負けた...";
+
+setTimeout(()=>{
+curHp=p.stats.hp*5;
+showSub('menu-ui');
+},2000);
+}
 }
 
 function showSub(id){
-    ["start-ui","create-ui","menu-ui","battle-ui"]
-    .forEach(i=>document.getElementById(i).classList.add('hidden'));
+["start-ui","create-ui","job-ui","point-ui","menu-ui","battle-ui"]
+.forEach(i=>document.getElementById(i).classList.add('hidden'));
 
-    document.getElementById(id).classList.remove('hidden');
+document.getElementById(id).classList.remove('hidden');
 }
 </script>
 
