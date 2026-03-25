@@ -10,9 +10,15 @@ function show(id){
 }
 
 function goCreate(){
-  show("create");
+    const createScreen = document.getElementById("create");
+    const startScreen = document.getElementById("start");
+    if(createScreen && startScreen){
+        startScreen.classList.add("hidden");
+        createScreen.classList.remove("hidden");
+    } else {
+        console.error("create または start の要素が見つかりません");
+    }
 }
-
 function createPlayer(){
   const name = document.getElementById("name").value;
   const file = document.getElementById("img").files[0];
