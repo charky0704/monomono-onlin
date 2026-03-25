@@ -46,6 +46,12 @@ updateUI();
 function updateUI(){
 
 if(!p) return;
+document.getElementById("status").innerHTML =
+`${p.name}<br>
+Lv:${p.lv}<br>
+Floor:${floor}<br>
+EXP:${p.exp}<br>
+Explore:${explore}/${maxExplore}`;
 
 document.getElementById("status").innerHTML =
 `${p.name}<br>Lv:${p.lv}<br>EXP:${p.exp}`;
@@ -82,13 +88,6 @@ atk:25 + floor * 10,
 exp:200
 });
 }
-
-document.getElementById("status").innerHTML =
-`${p.name}<br>
-Lv:${p.lv}<br>
-Floor:${floor}<br>
-EXP:${p.exp}<br>
-Explore:${explore}/${maxExplore}`;
 
 /* ===== セーブ ===== */
 function saveGame(){
