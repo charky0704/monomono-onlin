@@ -3,110 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <title>MONOMONO ONLINE</title>
-
-<style>
-body{
-margin:0;
-font-family:sans-serif;
-background:linear-gradient(to bottom,#bfe9ff,#e6f7ff);
-}
-
-.hidden{display:none}
-
-/* ===== 画面 ===== */
-.screen{
-height:100vh;
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-}
-
-/* ===== ボタン ===== */
-button{
-padding:10px;
-margin:5px;
-width:200px;
-background:#333;
-color:#fff;
-border:1px solid #666;
-cursor:pointer;
-}
-button:hover{background:#555}
-
-/* ===== HPバー ===== */
-.bar{
-width:200px;
-height:10px;
-background:#333;
-}
-.hp{
-height:10px;
-background:lime;
-width:100%;
-}
-
-/* ===== BATTLE ===== */
-#battleTop{
-display:flex;
-justify-content:space-between;
-align-items:center;
-width:100%;
-padding:20px;
-}
-
-.unit{
-width:45%;
-text-align:center;
-}
-
-.vs{
-font-size:26px;
-font-weight:bold;
-color:#333;
-}
-
-#log{
-width:90%;
-height:200px;
-background:#111;
-color:#0f0;
-overflow-y:auto;
-padding:10px;
-margin-top:10px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- START -->
+<!-- START画面 -->
 <div id="start" class="screen">
 <h1>MONOMONO ONLINE</h1>
 <button onclick="goCreate()">NEW GAME</button>
-<button onclick="load()">CONTINUE</button>
+<button onclick="loadGame()">CONTINUE</button>
 </div>
 
-<!-- CREATE -->
+<!-- キャラ作成 -->
 <div id="create" class="screen hidden">
 <h2>CREATE CHARACTER</h2>
-<input id="name" placeholder="NAME"><br>
-<input type="file" id="img"><br>
-<button onclick="create()">START</button>
+
+<input id="name" placeholder="NAME"><br><br>
+<input type="file" id="img"><br><br>
+
+<button onclick="createPlayer()">START</button>
 </div>
 
-<!-- MENU -->
+<!-- メニュー -->
 <div id="menu" class="screen hidden">
+
 <h2>MENU</h2>
 
 <div id="status"></div>
 
-<button onclick="startBattle()">EXPLORE</button>
-<button onclick="save()">SAVE</button>
+<button onclick="explore()">EXPLORE</button>
+<button onclick="saveGame()">SAVE</button>
 <button onclick="logout()">LOGOUT</button>
+
 </div>
 
-<!-- BATTLE -->
+<!-- 戦闘 -->
 <div id="battle" class="screen hidden">
 
 <div id="battleTop">
@@ -130,177 +62,10 @@ margin-top:10px;
 
 </div>
 
-<script>
-
-let p=null;
-let inBattle=false;
-
-/* ===== 画面切替 ===== */
-function show(id){
-["start","create","menu","battle"].forEach(i=>{
-document.getElementById(i).classList.add("hidden");
-});
-document.getElementById(id).classList.remove("hidden");
-}
-
-/* ===== 作成 ===== */
-function goCreate(){
-show("create");
-}
-
-function create(){
-
-const file=document.getElementById("img").files[0];
-const name=document.getElementById("name").value;
-
-if(!name){
-alert("名前必須");
-return;
-}
-if(!file){
-alert("見た目必須");
-return;
-}
-
-p={
-name:name,
-img:URL.createObjectURL(file),
-lv:1,
-hp:100,
-maxhp:100,
-exp:0
-};
-
-show("menu");
-update();
-}
-
-/* ===== 続きから ===== */
-function load(){
-p=JSON.parse(localStorage.getItem("mono"));
-if(!p){
-alert("データなし");
-return;
-}
-show("menu");
-update();
-}
-
-/* ===== セーブ ===== */
-function save(){
-localStorage.setItem("mono",JSON.stringify(p));
-alert("保存完了");
-}
-
-/* ===== UI更新 ===== */
-function update(){
-document.getElementById("status").innerHTML=
-`${p.name}<br>Lv:${p.lv}<br>EXP:${p.exp}`;
-}
-
-/* ===== 戦闘 ===== */
-function startBattle(){
-
-if(inBattle)return;
-
-inBattle=true;
-show("battle");
-
-document.getElementById("pimg").src=p.img;
-document.getElementById("pname").innerText=p.name;
-
-let enemy={
-name:"SLIME",
-hp:40,
-atk:5
-};
-
-let ehp=enemy.hp;
-
-document.getElementById("ename").innerText=enemy.name;
-
-log("Encounter");
-
-let loop=setInterval(()=>{
-
-// プレイヤー攻撃
-ehp-=10;
-log("You attack -10");
-
-// 敵攻撃
-p.hp-=enemy.atk;
-log("Enemy attacks -" + enemy.atk);
-
-// HP更新
-document.getElementById("ehp").style.width=(ehp/enemy.hp*100)+"%";
-document.getElementById("php").style.width=(p.hp/p.maxhp*100)+"%";
-
-if(ehp<=0){
-clearInterval(loop);
-win();
-}
-
-if(p.hp<=0){
-clearInterval(loop);
-lose();
-}
-
-},700);
-}
-
-/* ===== 勝利 ===== */
-function win(){
-
-log("WIN");
-
-setTimeout(()=>{
-
-p.exp+=20;
-
-if(p.exp>=100){
-p.lv++;
-p.exp=0;
-p.maxhp+=20;
-p.hp=p.maxhp;
-}
-
-inBattle=false;
-clearLog();
-show("menu");
-update();
-
-},1500);
-}
-
-/* ===== 敗北 ===== */
-function lose(){
-log("LOSE");
-
-setTimeout(()=>{
-inBattle=false;
-p.hp=p.maxhp;
-clearLog();
-show("menu");
-},1500);
-}
-
-/* ===== ログ ===== */
-function log(t){
-const l=document.getElementById("log");
-l.innerHTML+=t+"<br>";
-l.scrollTop=l.scrollHeight;
-}
-
-function clearLog(){
-document.getElementById("log").innerHTML="";
-}
-
-/* ===== ログアウト ===== */
-function logout(){
-location.reload();
-}
-
-</script>
+<!-- JS読み込み（超重要順番） -->
+<script src="data.js"></script>
+<script src="game.js"></script>
+<script src="battle.js"></script>
 
 </body>
 </html>
