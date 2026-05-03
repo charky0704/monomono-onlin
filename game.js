@@ -39,14 +39,23 @@ function createPlayer(){
   if(!name){ alert("名前は必須です"); return; }
   if(!file){ alert("見た目は必須です"); return; }
 
-  p = { 
-    name:name, 
-    img:URL.createObjectURL(file), 
-    lv:1, 
-    exp:0, 
-    hp:100, 
-    maxhp:100 
-  };
+  p = {
+  name,
+  img: URL.createObjectURL(file),
+
+  lv: 1,
+  exp: 0,
+  hp: 100,
+  maxhp: 100,
+
+  status: {
+    atk: 10,
+    def: 10,
+    spd: 10
+  },
+
+  weapon: ["なし", "なし"]
+};
 
   saveGame();
   updateUI();
