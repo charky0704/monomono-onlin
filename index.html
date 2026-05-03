@@ -43,6 +43,31 @@ button {
   <input id="name" placeholder="NAME"><br><br>
   <input type="file" id="img"><br><br>
   <button onclick="createPlayer()">START</button>
+  <p>残りポイント: <span id="point">20</span></p>
+
+<p>
+STR <button onclick="subStat('str')">-</button>
+<span id="strVal">0</span>
+<button onclick="addStat('str')">+</button>
+</p>
+
+<p>
+VIT <button onclick="subStat('vit')">-</button>
+<span id="vitVal">0</span>
+<button onclick="addStat('vit')">+</button>
+</p>
+
+<p>
+AGI <button onclick="subStat('agi')">-</button>
+<span id="agiVal">0</span>
+<button onclick="addStat('agi')">+</button>
+</p>
+
+<p>
+INT <button onclick="subStat('int')">-</button>
+<span id="intVal">0</span>
+<button onclick="addStat('int')">+</button>
+</p>
 </div>
 
 <!-- メニュー画面 -->
