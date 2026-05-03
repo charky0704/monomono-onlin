@@ -6,6 +6,14 @@ let game = {
   currentFloor: 1,
   exploreCount: 0
 };
+let tempStatus = {
+  str: 0,
+  vit: 0,
+  agi: 0,
+  int: 0
+};
+
+let point = 20;
 const floors = {
   1: {
     enemy: ["スライム", "ウルフ"],
@@ -43,21 +51,47 @@ function createPlayer(){
 
   if(!name){ alert("名前は必須です"); return; }
   if(!file){ alert("見た目は必須です"); return; }
+function updatePointUI(){
+  document.getElementById("point").innerText = point;
 
-  p = {
+  document.getElementById("strVal").innerText = tempStatus.str;
+  document.getElementById("vitVal").innerText = tempStatus.vit;
+  document.getElementById("agiVal").innerText = tempStatus.agi;
+  document.getElementById("intVal").innerText = tempStatus.int;
+}
+function addStat(type){
+  if(point <= 0) return;
+
+  tempStatus[type]++;
+  point--;
+
+  updatePointUI();
+}
+
+function subStat(type){
+  if(tempStatus[type] <= 0) return;
+
+  tempStatus[type]--;
+  point++;
+
+  updatePointUI();
+}
+p = {
   name,
   img: URL.createObjectURL(file),
 
   lv: 1,
   exp: 0,
+
   hp: 100,
   maxhp: 100,
 
   status: {
-    atk: 10,
-    def: 10,
-    spd: 10
-  },
+  str: tempStatus.str,
+  vit: tempStatus.vit,
+  agi: tempStatus.agi,
+  int: tempStatus.int
+},
 
   weapon: ["なし", "なし"]
 };
@@ -137,3 +171,6 @@ window.logout = logout;
 window.addEventListener("orientationchange", () => {
   location.reload();
 });
+window.addStat = addStat;
+window.subStat = subStat;
+window.updatePointUI = updatePointUI;
