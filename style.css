@@ -75,10 +75,18 @@ input {
   from { opacity:0; transform: scale(1.02); }
   to { opacity:1; transform: scale(1); }
 }
-.ui{
-  display:flex;
-  width:100%;
-  height:100vh;
+.ui {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+.panel.left {
+  width: 35%;
+}
+
+.panel.right {
+  width: 65%;
 }
 /* 左パネル */
 .panel.left{
