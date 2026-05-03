@@ -4,8 +4,7 @@ function show(id){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.remove('active');
   });
-  const target = document.getElementById(id);
-  if(target) target.classList.add('active');
+  document.getElementById(id).classList.add('active');
 }
 
 // NEW GAMEボタン用
