@@ -41,8 +41,32 @@ function updateUI(){
     `名前: ${p.name}<br>Lv: ${p.lv}<br>HP: ${p.hp}/${p.maxhp}<br>EXP: ${p.exp}`;
 }
 
-function exploreArea(){ 
-  alert("探索イベント！");
+function exploreArea(){
+  const f = floors?.[game?.currentFloor || 1];
+
+  let enemy = null;
+
+  game.exploreCount = (game.exploreCount || 0) + 1;
+
+  // 隠し
+  if(Math.random() < 0.05){
+    enemy = { name: f.hidden, hp: 80, atk: 15, exp: 100 };
+  }
+  // ボス
+  else if(game.exploreCount >= f.bossNeed){
+    enemy = { name: f.boss, hp: 200, atk: 25, exp: 300 };
+    game.exploreCount = 0;
+  }
+  // 通常
+  else{
+    const name = f.enemy[Math.floor(Math.random()*f.enemy.length)];
+    enemy = { name, hp: 50, atk: 10, exp: 20 };
+  }
+
+  log(`⚔️ ${enemy.name} が現れた`);
+
+  currentEnemy = enemy;
+  startBattle();
 }
 
 function saveGame(){ 
