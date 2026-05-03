@@ -1,7 +1,10 @@
 let p = null;
 let inBattle = false;
 let currentEnemy = null;
-
+let game = {
+  currentFloor: 1,
+  exploreCount: 0
+};
 function show(id){
   document.querySelectorAll('.screen').forEach(el=>{
     el.classList.remove('active');
