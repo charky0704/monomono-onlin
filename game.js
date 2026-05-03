@@ -1,4 +1,6 @@
 let p = null;
+let inBattle = false;
+let currentEnemy = null;
 
 function show(id){
   document.querySelectorAll('.screen').forEach(el=>{
