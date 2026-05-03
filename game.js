@@ -32,6 +32,11 @@ function goCreate(){
   show("create");
 }
 
+function log(text){
+  const el = document.getElementById("log");
+  if(el) el.innerHTML += text + "<br>";
+}
+
 function createPlayer(){
   const name = document.getElementById("name").value;
   const file = document.getElementById("img").files[0];
