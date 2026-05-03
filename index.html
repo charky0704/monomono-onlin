@@ -45,14 +45,30 @@ button {
 </div>
 
 <!-- メニュー画面 -->
-<div id="menu" class="screen">
-  <h2>MENU</h2>
-  <div id="status"></div>
-  <button onclick="exploreArea()">探索する</button>
-  <button onclick="saveGame()">セーブ</button>
-  <button onclick="logout()">ログアウト</button>
-</div>
+<div id="menu" class="screen active">
 
+  <div class="ui">
+
+    <!-- 左：ステータス -->
+    <div class="panel left">
+      <h3>ステータス</h3>
+      <img id="charImg">
+      <div id="status"></div>
+    </div>
+
+    <!-- 右：メニュー -->
+    <div class="panel right">
+      <h3>行動メニュー</h3>
+
+      <button>街に行く</button>
+      <button>合成</button>
+      <button>戦闘</button>
+      <button>依頼</button>
+    </div>
+
+  </div>
+
+</div>
 <script src="game.js"></script>
 </body>
 </html>
