@@ -110,3 +110,6 @@ window.loadGame = loadGame;
 window.exploreArea = exploreArea;
 window.saveGame = saveGame;
 window.logout = logout;
+window.addEventListener("orientationchange", () => {
+  location.reload();
+});
