@@ -1,8 +1,31 @@
 body{
   margin:0;
   font-family: "Arial", sans-serif;
-  background: radial-gradient(circle at top, #1b1f2a, #0b0f1a);
-  color:#fff;
+  color:#2b2b2b;
+  background: linear-gradient(to bottom, #7ec8ff 0%, #dff7ff 40%, #b7f0a1 100%);
+  overflow:hidden;
+}
+
+/* 太陽の光っぽい演出 */
+body::before{
+  content:"";
+  position:fixed;
+  width:100%;
+  height:100%;
+  background: radial-gradient(circle at 30% 20%, rgba(255,255,200,0.6), transparent 40%);
+  pointer-events:none;
+}
+
+/* ふわっとした空気感 */
+body::after{
+  content:"";
+  position:fixed;
+  width:100%;
+  height:100%;
+  background-image: radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity:0.3;
+  pointer-events:none;
 }
 
 /* 画面 */
@@ -14,7 +37,7 @@ body{
   align-items: center;
   flex-direction: column;
   text-align:center;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.4s ease;
 }
 
 .screen.active {
@@ -23,8 +46,8 @@ body{
 
 /* タイトル */
 h1, h2{
-  margin-bottom:20px;
-  letter-spacing:2px;
+  color:#2a4d2a;
+  text-shadow: 0 2px 5px rgba(255,255,255,0.6);
 }
 
 /* ボタン */
@@ -32,35 +55,36 @@ button {
   padding: 12px 24px;
   margin: 8px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
-  background: linear-gradient(135deg, #4f7cff, #6a5cff);
-  color: white;
+  background: linear-gradient(to bottom, #ffffff, #d8f5d0);
+  color: #2a4d2a;
   font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   transition: 0.2s;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+  background: linear-gradient(to bottom, #f7fff4, #c8f0b8);
 }
 
 /* 入力 */
 input {
   padding: 10px;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #a8d5a2;
   margin: 5px;
+  background: rgba(255,255,255,0.7);
 }
 
-/* ステータス枠 */
+/* ステータス */
 #status {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.6);
   padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+  border-radius: 12px;
   min-width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 /* フェード */
