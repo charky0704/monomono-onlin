@@ -42,3 +42,4 @@ function log(text){ document.getElementById("log").innerHTML += text+"<br>"; }
 
 function winBattle(){ alert("勝利！"); inBattle=false; }
 function loseBattle(){ alert("敗北"); inBattle=false; }
+window.startBattle = startBattle;
