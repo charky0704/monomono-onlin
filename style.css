@@ -1,7 +1,6 @@
-body{
-  margin:0;
-  font-family: sans-serif;
-  background: linear-gradient(to bottom, #7ec8ff, #c9f7b7);
+body {
+  margin: 0;
+  overflow: hidden;
 }
 
 .screen{
