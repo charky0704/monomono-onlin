@@ -1,74 +1,59 @@
 body{
   margin:0;
-  font-family: "Arial", sans-serif;
-  color:#2b2b2b;
-  background: linear-gradient(to bottom, #7ec8ff 0%, #dff7ff 40%, #b7f0a1 100%);
-  overflow:hidden;
+  font-family: sans-serif;
+  background: linear-gradient(to bottom, #7ec8ff, #c9f7b7);
 }
 
-/* 太陽の光っぽい演出 */
-body::before{
-  content:"";
-  position:fixed;
+.screen{
+  display:none;
   width:100%;
-  height:100%;
-  background: radial-gradient(circle at 30% 20%, rgba(255,255,200,0.6), transparent 40%);
-  pointer-events:none;
+  height:100vh;
+  justify-content:center;
+  align-items:center;
 }
 
-/* ふわっとした空気感 */
-body::after{
-  content:"";
-  position:fixed;
-  width:100%;
-  height:100%;
-  background-image: radial-gradient(rgba(255,255,255,0.4) 1px, transparent 1px);
-  background-size: 30px 30px;
-  opacity:0.3;
-  pointer-events:none;
+.screen.active{
+  display:flex;
 }
 
-/* 画面 */
-.screen {
-  display: none;
-  width: 100%;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
+/* メインカード */
+#menu{
   flex-direction: column;
+}
+
+.menu-card{
+  background: rgba(255,255,255,0.85);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   text-align:center;
-  animation: fadeIn 0.4s ease;
+  width: 300px;
 }
 
-.screen.active {
-  display: flex;
-}
-
-/* タイトル */
-h1, h2{
-  color:#2a4d2a;
-  text-shadow: 0 2px 5px rgba(255,255,255,0.6);
+/* キャラ画像 */
+#charImg{
+  width:120px;
+  height:120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border:3px solid #4caf50;
+  margin-bottom:10px;
 }
 
 /* ボタン */
-button {
-  padding: 12px 24px;
-  margin: 8px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  background: linear-gradient(to bottom, #ffffff, #d8f5d0);
-  color: #2a4d2a;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: 0.2s;
+button{
+  margin:5px;
+  padding:10px 15px;
+  border:none;
+  border-radius:10px;
+  background:#4caf50;
+  color:white;
+  cursor:pointer;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(to bottom, #f7fff4, #c8f0b8);
+button:hover{
+  background:#45a049;
 }
-
 /* 入力 */
 input {
   padding: 10px;
