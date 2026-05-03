@@ -5,6 +5,38 @@ const enemy = { name:"SLIME", hp:50, atk:10, exp:30 };
 function startBattle(){
   if(!p || !currentEnemy) return;
 
+  show("battle");
+
+  let php = p.hp;
+  let ehp = currentEnemy.hp;
+
+  log(`${currentEnemy.name} が現れた！`);
+
+  const loop = setInterval(() => {
+
+    // プレイヤー攻撃
+    ehp -= 10;
+    log(`${p.name}の攻撃！`);
+
+    if(ehp <= 0){
+      clearInterval(loop);
+      winBattle();
+      return;
+    }
+
+    // 敵攻撃
+    php -= currentEnemy.atk;
+    log(`敵の攻撃！`);
+
+    if(php <= 0){
+      clearInterval(loop);
+      loseBattle();
+      return;
+    }
+
+  }, 800);
+}
+
   inBattle = true;
 
   const enemy = currentEnemy;
