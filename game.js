@@ -55,8 +55,18 @@ function createPlayer(){
 
 function updateUI(){
   if(!p) return;
-  document.getElementById("status").innerHTML =
-    `名前: ${p.name}<br>Lv: ${p.lv}<br>HP: ${p.hp}/${p.maxhp}<br>EXP: ${p.exp}`;
+
+  document.getElementById("charImg").src = p.img;
+
+  document.getElementById("status").innerHTML = `
+    名前: ${p.name}<br>
+    Lv: ${p.lv}<br>
+    HP: ${p.hp}/${p.maxhp}<br>
+    ATK: ${p.status.atk}<br>
+    DEF: ${p.status.def}<br>
+    SPD: ${p.status.spd}<br>
+    武器: ${p.weapon.join(" / ")}
+  `;
 }
 
 function exploreArea(){
