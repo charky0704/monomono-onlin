@@ -3,9 +3,11 @@ let inBattle = false;
 const enemy = { name:"SLIME", hp:50, atk:10, exp:30 };
 
 function startBattle(){
-  if(!p) return;
+  if(!p || !currentEnemy) return;
+
   inBattle = true;
-  show("battle");
+
+  const enemy = currentEnemy;
 
   document.getElementById("pimg").src = p.img;
   document.getElementById("pname").innerText = p.name;
