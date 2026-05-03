@@ -1,9 +1,24 @@
 let p = null;
 let inBattle = false;
 let currentEnemy = null;
+
 let game = {
   currentFloor: 1,
   exploreCount: 0
+};
+const floors = {
+  1: {
+    enemy: ["スライム", "ウルフ"],
+    boss: "ゴブリンキング",
+    hidden: "レアスライム",
+    bossNeed: 5
+  },
+  2: {
+    enemy: ["コウモリ", "スケルトン"],
+    boss: "ダークナイト",
+    hidden: "シャドウスライム",
+    bossNeed: 7
+  }
 };
 function show(id){
   document.querySelectorAll('.screen').forEach(el=>{
