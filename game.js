@@ -76,23 +76,19 @@ function subStat(type){
 
   updatePointUI();
 }
-p = {
+player = {
   name,
   img: URL.createObjectURL(file),
-
   lv: 1,
   exp: 0,
-
   hp: 100,
   maxhp: 100,
-
   status: {
-  str: tempStatus.str,
-  vit: tempStatus.vit,
-  agi: tempStatus.agi,
-  int: tempStatus.int
-},
-
+    str: 0,
+    vit: 0,
+    agi: 0,
+    int: 0
+  },
   weapon: ["なし", "なし"]
 };
 
