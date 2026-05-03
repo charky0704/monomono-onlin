@@ -1,4 +1,4 @@
-let p = null;
+let player = null;
 let inBattle = false;
 let currentEnemy = null;
 
