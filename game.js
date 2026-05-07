@@ -105,7 +105,7 @@ function updateUI(){
   document.getElementById("status").innerHTML = `
     名前: ${player.name}<br>
     Lv: ${player.lv}<br>
-    HP: ${player.hp}/${p.maxhp}<br>
+    HP: ${player.hp}/${player.maxhp}<br>
     ATK: ${player.status.atk}<br>
     DEF: ${player.status.def}<br>
     SPD: ${player.status.spd}<br>
@@ -143,7 +143,7 @@ function exploreArea(){
 
 function saveGame(){ 
   if(!player) return;
-  localStorage.setItem("mono", JSON.stringify(p)); 
+  localStorage.setItem("mono", JSON.stringify(player));
 }
 
 function loadGame(){
