@@ -37,7 +37,7 @@ function show(id){
 
 // NEW GAMEボタン用
 function goCreate(){
-  updatePointUI();  // ← これ追加
+  console.log("goCreate呼ばれた");
   show("create");
 }
 function log(text){
