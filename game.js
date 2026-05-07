@@ -37,7 +37,7 @@ function show(id){
 
 // NEW GAMEボタン用
 function goCreate(){
-  console.log("goCreate呼ばれた");
+  console.log("game.js loaded");
   show("create");
 }
 function log(text){
