@@ -98,18 +98,18 @@ player = {
 }
 
 function updateUI(){
-  if(!p) return;
+  if(!player) return;
 
-  document.getElementById("charImg").src = p.img;
+  document.getElementById("charImg").src = player.img;
 
   document.getElementById("status").innerHTML = `
-    名前: ${p.name}<br>
-    Lv: ${p.lv}<br>
-    HP: ${p.hp}/${p.maxhp}<br>
-    ATK: ${p.status.atk}<br>
-    DEF: ${p.status.def}<br>
-    SPD: ${p.status.spd}<br>
-    武器: ${p.weapon.join(" / ")}
+    名前: ${player.name}<br>
+    Lv: ${player.lv}<br>
+    HP: ${player.hp}/${p.maxhp}<br>
+    ATK: ${player.status.atk}<br>
+    DEF: ${player.status.def}<br>
+    SPD: ${player.status.spd}<br>
+    武器: ${player.weapon.join(" / ")}
   `;
 }
 
@@ -142,13 +142,13 @@ function exploreArea(){
 }
 
 function saveGame(){ 
-  if(!p) return; 
+  if(!player) return;
   localStorage.setItem("mono", JSON.stringify(p)); 
 }
 
 function loadGame(){
-  p = JSON.parse(localStorage.getItem("mono"));
-  if(!p){ alert("データなし"); return; }
+  player = JSON.parse(localStorage.getItem("mono"));
+  if(!player){ alert("データなし"); return; }
   show("menu");
   updateUI();
 }
