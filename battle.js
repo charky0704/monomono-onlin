@@ -3,11 +3,11 @@ let inBattle = false;
 const enemy = { name:"SLIME", hp:50, atk:10, exp:30 };
 
 function startBattle(){
-  if(!p || !currentEnemy) return;
+  if(!player || !currentEnemy) return;
 
   show("battle");
 
-  let php = p.hp;
+  let php = player.hp;
   let ehp = currentEnemy.hp;
 
   log(`${currentEnemy.name} が現れた！`);
@@ -16,7 +16,7 @@ function startBattle(){
 
     // プレイヤー攻撃
     ehp -= 10;
-    log(`${p.name}の攻撃！`);
+    log(`${player.name}の攻撃！`);
 
     if(ehp <= 0){
       clearInterval(loop);
@@ -41,11 +41,11 @@ function startBattle(){
 
   const enemy = currentEnemy;
 
-  document.getElementById("pimg").src = p.img;
-  document.getElementById("pname").innerText = p.name;
+  document.getElementById("pimg").src = player.img;
+  document.getElementById("pname").innerText = player.name;
   document.getElementById("ename").innerText = enemy.name;
 
-  let php = p.hp;
+  let php = player.hp;
   let ehp = enemy.hp;
 
   updateHP(php, ehp, enemy.hp);
@@ -53,7 +53,7 @@ function startBattle(){
 
   const loop = setInterval(()=>{
     ehp -= 10;
-    log(p.name+" attack!");
+    log(player.name+" attack!");
     if(ehp <=0){ clearInterval(loop); winBattle(); return; }
 
     php -= enemy.atk;
