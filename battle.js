@@ -65,7 +65,10 @@ function startBattle(){
 }
 
 function updateHP(php, ehp, emax){
-  document.getElementById("php").style.width = (php/p.maxhp*100)+"%";
+  document.getElementById("php").style.width =
+  (php / player.maxhp * 100) + "%";
+
+player.hp = php;
   document.getElementById("ehp").style.width = (ehp/emax*100)+"%";
   p.hp = php;
 }
