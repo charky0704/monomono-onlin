@@ -104,11 +104,13 @@ player = {
   hp: 100,
   maxhp: 100,
   status: {
-  str: tempStatus.str,
-  vit: tempStatus.vit,
-  agi: tempStatus.agi,
-  int: tempStatus.int
-}
+    str: tempStatus.str,
+    vit: tempStatus.vit,
+    agi: tempStatus.agi,
+    int: tempStatus.int
+  },
+  weapon: ["なし", "なし"]
+};
   weapon: ["なし", "なし"]
 };
 
