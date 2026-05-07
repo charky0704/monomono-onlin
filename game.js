@@ -37,9 +37,9 @@ function show(id){
 
 // NEW GAMEボタン用
 function goCreate(){
+  updatePointUI();  // ← これ追加
   show("create");
 }
-
 function log(text){
   const el = document.getElementById("log");
   if(el) el.innerHTML += text + "<br>";
@@ -51,6 +51,8 @@ function createPlayer(){
 
   if(!name){ alert("名前は必須です"); return; }
   if(!file){ alert("見た目は必須です"); return; }
+
+  player = {
 function updatePointUI(){
   document.getElementById("point").innerText = point;
 
@@ -58,6 +60,24 @@ function updatePointUI(){
   document.getElementById("vitVal").innerText = tempStatus.vit;
   document.getElementById("agiVal").innerText = tempStatus.agi;
   document.getElementById("intVal").innerText = tempStatus.int;
+}
+
+function addStat(type){
+  if(point <= 0) return;
+
+  tempStatus[type]++;
+  point--;
+
+  updatePointUI();
+}
+
+function subStat(type){
+  if(tempStatus[type] <= 0) return;
+
+  tempStatus[type]--;
+  point++;
+
+  updatePointUI();
 }
 function addStat(type){
   if(point <= 0) return;
@@ -84,11 +104,11 @@ player = {
   hp: 100,
   maxhp: 100,
   status: {
-    str: 0,
-    vit: 0,
-    agi: 0,
-    int: 0
-  },
+  str: tempStatus.str,
+  vit: tempStatus.vit,
+  agi: tempStatus.agi,
+  int: tempStatus.int
+}
   weapon: ["なし", "なし"]
 };
 
